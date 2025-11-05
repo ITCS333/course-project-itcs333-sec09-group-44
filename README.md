@@ -15,7 +15,7 @@ It includes all five tasks, each assigned to a different member.
 |------|------|------------|--------|
 | 1 – Admin Portal & User Management | **Ajlan Isa Ajlan Ramadhan** | **202303872** | ✅ Completed |
 | 2 – Course Resources | *(Member 2 Name)* | *(ID)* | 🔜 Pending |
-| 3 – Weekly Breakdown | *Isa Nader Omran* | *202303812* | 🔜 Pending |
+| 3 – Weekly Breakdown | *(Member 3 Name* | *(ID)* | 🔜 Pending |
 | 4 – Assignments | *(Member 4 Name)* | *(ID)* | 🔜 Pending |
 | 5 – Discussion Board | *(Member 5 Name)* | *(ID)* | 🔜 Pending |
 
