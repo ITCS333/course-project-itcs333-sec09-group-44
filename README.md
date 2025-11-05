@@ -41,8 +41,8 @@ course-project-itcs333-sec09-group-44/
 │   ├── index.html
 │   ├── login.php
 │   ├── logout.php
-│   ├── style.css
-│   └── script.js
+│   ├── script.js
+│   └── style.css
 │
 └── (other tasks to be added later)
 ```
@@ -63,16 +63,22 @@ course-project-itcs333-sec09-group-44/
    - Database name: `itcs333`
    - Import the `users` table into phpMyAdmin.
    - Admin login: `admin@itcs333.com`
-   - Password: (use the hashed one you generated)
+   - Password: `123456`
 
 ---
 
 ### 📅 Submission Deadline
-**November 29 2025**
+**November 29, 2025**
 
 ---
 
 ### 📝 Notes
-- This project is developed collaboratively under the official ITCS333 GitHub Classroom.  
-- Each member must complete their task folder (`task1` – `task5`) and push to this repository.  
-- Base template and requirements provided by the instructor (Dr. Abdullah Khalifa AlDoseri).
+This project is developed collaboratively under the official **ITCS333 GitHub Classroom**.
+
+Each member completes their assigned task (task1 – task5) in their own folder.
+
+Shared assets are placed in the **assets/** folder, and shared frontend templates are in the **src/** folder.
+
+Task 1 (Admin Portal) was implemented by Ajlan Isa Ajlan Ramadhan (202303872), Group 44.
+---
+© 2025 University of Bahrain | ITCS333 Course Project – Group 44
