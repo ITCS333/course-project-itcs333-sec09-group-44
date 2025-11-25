@@ -16,9 +16,8 @@
 let topics = [];
 
 // --- Element Selections ---
-// TODO: Select the new topic form ('#new-topic-form').
-
-// TODO: Select the topic list container ('#topic-list-container').
+const newTopicForm = document.getElementById('new-topic-form');
+const topicListContainer = document.getElementById('topic-list-container');
 
 // --- Functions ---
 
@@ -32,7 +31,40 @@ let topics = [];
  * - The "Delete" button should have a class "delete-btn" and `data-id="${id}"`.
  */
 function createTopicArticle(topic) {
-  // ... your implementation here ...
+  const article = document.createElement('article');
+  article.className = 'topic';
+  
+  const h3 = document.createElement('h3');
+  const link = document.createElement('a');
+  link.href = `topic.html?id=${topic.id}`;
+  link.textContent = topic.subject;
+  h3.appendChild(link);
+  
+  const footer = document.createElement('footer');
+  footer.textContent = `Posted by: ${topic.author} on ${topic.date}`;
+  
+  const actions = document.createElement('div');
+  actions.className = 'topic-actions';
+  
+  const editBtn = document.createElement('a');
+  editBtn.href = '#';
+  editBtn.className = 'btn-edit';
+  editBtn.textContent = 'Edit';
+  
+  const deleteBtn = document.createElement('a');
+  deleteBtn.href = '#';
+  deleteBtn.className = 'delete-btn btn-delete';
+  deleteBtn.setAttribute('data-id', topic.id);
+  deleteBtn.textContent = 'Delete';
+  
+  actions.appendChild(editBtn);
+  actions.appendChild(deleteBtn);
+  
+  article.appendChild(h3);
+  article.appendChild(footer);
+  article.appendChild(actions);
+  
+  return article;
 }
 
 /**
@@ -44,7 +76,12 @@ function createTopicArticle(topic) {
  * append the resulting <article> to `topicListContainer`.
  */
 function renderTopics() {
-  // ... your implementation here ...
+  topicListContainer.innerHTML = '';
+  
+  topics.forEach(topic => {
+    const articleElement = createTopicArticle(topic);
+    topicListContainer.appendChild(articleElement);
+  });
 }
 
 /**
@@ -66,7 +103,36 @@ function renderTopics() {
  * 6. Reset the form.
  */
 function handleCreateTopic(event) {
-  // ... your implementation here ...
+  event.preventDefault();
+  
+  const subject = document.getElementById('topic-subject').value;
+  const message = document.getElementById('topic-message').value;
+  
+  const newTopic = {
+    id: `topic_${Date.now()}`,
+    subject: subject,
+    message: message,
+    author: 'Student',
+    date: new Date().toISOString().split('T')[0]
+  };
+  
+  topics.push(newTopic);
+  
+  // Save new topic to sessionStorage
+  let createdTopics = [];
+  const existingCreatedTopics = sessionStorage.getItem('createdTopics');
+  if (existingCreatedTopics) {
+    try {
+      createdTopics = JSON.parse(existingCreatedTopics);
+    } catch (e) {
+      createdTopics = [];
+    }
+  }
+  createdTopics.push(newTopic);
+  sessionStorage.setItem('createdTopics', JSON.stringify(createdTopics));
+  
+  renderTopics();
+  newTopicForm.reset();
 }
 
 /**
@@ -80,7 +146,11 @@ function handleCreateTopic(event) {
  * 4. Call `renderTopics()` to refresh the list.
  */
 function handleTopicListClick(event) {
-  // ... your implementation here ...
+  if (event.target.classList.contains('delete-btn')) {
+    const topicId = event.target.getAttribute('data-id');
+    topics = topics.filter(topic => topic.id !== topicId);
+    renderTopics();
+  }
 }
 
 /**
@@ -94,7 +164,27 @@ function handleTopicListClick(event) {
  * 5. Add the 'click' event listener to `topicListContainer` (calls `handleTopicListClick`).
  */
 async function loadAndInitialize() {
-  // ... your implementation here ...
+  try {
+    const response = await fetch('api/topics.json');
+    topics = await response.json();
+    
+    // Load any topics from sessionStorage (topics created in this session)
+    const sessionTopics = sessionStorage.getItem('createdTopics');
+    if (sessionTopics) {
+      try {
+        const parsedSessionTopics = JSON.parse(sessionTopics);
+        topics = topics.concat(parsedSessionTopics);
+      } catch (e) {
+        console.error('Error parsing session topics:', e);
+      }
+    }
+    
+    renderTopics();
+    newTopicForm.addEventListener('submit', handleCreateTopic);
+    topicListContainer.addEventListener('click', handleTopicListClick);
+  } catch (error) {
+    console.error('Error loading topics:', error);
+  }
 }
 
 // --- Initial Page Load ---
