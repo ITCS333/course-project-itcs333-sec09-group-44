@@ -17,11 +17,13 @@
 
     <!-- TODO: Link to your CSS framework or stylesheet. -->
     <link rel="stylesheet" href="styles.css">
+
+  <script src="details.js" defer></script>
 </head>
 <body>
     <!-- TODO: Create a 'header' with a main heading ('h1'). You can use a dummy title like "Chapter 1 Notes". -->
     <header>
-        <h1>Chapter 1 Notes</h1>
+        <h1 id="resource-title">Chapter 1 Notes</h1>
     </header>
 
     <!-- TODO: Create the 'main' content area. -->
@@ -32,14 +34,14 @@
         <article>
 
             <!-- TODO: Add a paragraph ('p') for the resource description (use dummy text). -->
-            <p>
+            <pid="resource-description">
                 This section provides a detailed explanation of Chapter 1, covering the main concepts and examples in depth.
             </p>
 
             <!-- TODO: Add an anchor tag ('a') that links to the actual resource URL (use a dummy link like "https://example.com").
                  - Text should be "Access Resource Material".
                  - Consider adding 'target="_blank"' to open it in a new tab. -->
-            <a href="https://example.com" target="_blank">Access Resource Material</a>
+            <a id="resource-link" href="https://example.com" target="_blank">Access Resource Material</a>
 
         </article>
         <!-- End of article. -->
@@ -80,7 +82,7 @@
 
             <!-- Subsection 2.2: Add a Comment Form -->
             <!-- TODO: Create a 'form' for users to post new comments. Action can be '#'. -->
-            <form action="#" method="post">
+            <form id="comment-form" action="#">
 
                 <!-- TODO: Use a 'fieldset' to group the controls. -->
                 <fieldset>
