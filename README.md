@@ -14,7 +14,7 @@ It includes all five tasks, each assigned to a different member.
 | Task | Name | Student ID | Status |
 |------|------|------------|--------|
 | 1 – Admin Portal & User Management | **Ajlan Isa Ajlan Ramadhan** | **202303872** | ✅ Completed |
-| 2 – Course Resources | ** | ** | 🔜 Pending |
+| 2 – Course Resources | *Hussain Yasser Ali* | *202304049* | 🔜 Pending |
 | 3 – Weekly Breakdown | *(Member 3 Name* | *(ID)* | 🔜 Pending |
 | 4 – Assignments | *(Member 4 Name)* | *(ID)* | 🔜 Pending |
 | 5 – Discussion Board | *Isa Nader Omran* | *202303812* | 🔜 Pending |
