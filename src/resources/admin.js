@@ -12,13 +12,14 @@
 */
 
 // --- Global Data Store ---
-// This will hold the resources loaded from the JSON file.
 let resources = [];
 
 // --- Element Selections ---
 // TODO: Select the resource form ('#resource-form').
+const resourceForm = document.querySelector("#resource-form");
 
 // TODO: Select the resources table body ('#resources-tbody').
+const resourcesTableBody = document.querySelector("#resources-tbody");
 
 // --- Functions ---
 
@@ -34,6 +35,34 @@ let resources = [];
  */
 function createResourceRow(resource) {
   // ... your implementation here ...
+  const tr = document.createElement("tr");
+
+  const titleTd = document.createElement("td");
+  titleTd.textContent = resource.title;
+
+  const descTd = document.createElement("td");
+  descTd.textContent = resource.description;
+
+  const actionsTd = document.createElement("td");
+
+  const editBtn = document.createElement("button");
+  editBtn.textContent = "Edit";
+  editBtn.classList.add("edit-btn");
+  editBtn.dataset.id = resource.id;
+
+  const deleteBtn = document.createElement("button");
+  deleteBtn.textContent = "Delete";
+  deleteBtn.classList.add("delete-btn");
+  deleteBtn.dataset.id = resource.id;
+
+  actionsTd.appendChild(editBtn);
+  actionsTd.appendChild(deleteBtn);
+
+  tr.appendChild(titleTd);
+  tr.appendChild(descTd);
+  tr.appendChild(actionsTd);
+
+  return tr;
 }
 
 /**
@@ -46,6 +75,12 @@ function createResourceRow(resource) {
  */
 function renderTable() {
   // ... your implementation here ...
+  resourcesTableBody.innerHTML = "";
+
+  resources.forEach((res) => {
+    const row = createResourceRow(res);
+    resourcesTableBody.appendChild(row);
+  });
 }
 
 /**
@@ -54,13 +89,30 @@ function renderTable() {
  * It should:
  * 1. Prevent the form's default submission.
  * 2. Get the values from the title, description, and link inputs.
- * 3. Create a new resource object with a unique ID (e.g., `id: \`res_${Date.now()}\``).
+ * 3. Create a new resource object with a unique ID (e.g., `id: `res_${Date.now()}`).
  * 4. Add this new resource object to the global `resources` array (in-memory only).
  * 5. Call `renderTable()` to refresh the list.
  * 6. Reset the form.
  */
 function handleAddResource(event) {
   // ... your implementation here ...
+  event.preventDefault();
+
+  const title = document.querySelector("#resource-title").value;
+  const description = document.querySelector("#resource-description").value;
+  const link = document.querySelector("#resource-link").value;
+
+  const newResource = {
+    id: `res_${Date.now()}`,
+    title,
+    description,
+    link
+  };
+
+  resources.push(newResource);
+
+  renderTable();
+  resourceForm.reset();
 }
 
 /**
@@ -75,6 +127,11 @@ function handleAddResource(event) {
  */
 function handleTableClick(event) {
   // ... your implementation here ...
+  if (event.target.classList.contains("delete-btn")) {
+    const id = event.target.dataset.id;
+    resources = resources.filter((res) => res.id !== id);
+    renderTable();
+  }
 }
 
 /**
@@ -89,8 +146,14 @@ function handleTableClick(event) {
  */
 async function loadAndInitialize() {
   // ... your implementation here ...
+  const response = await fetch("resources.json");
+  resources = await response.json();
+
+  renderTable();
+
+  resourceForm.addEventListener("submit", handleAddResource);
+  resourcesTableBody.addEventListener("click", handleTableClick);
 }
 
 // --- Initial Page Load ---
-// Call the main async function to start the application.
 loadAndInitialize();
