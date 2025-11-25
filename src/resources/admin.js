@@ -12,6 +12,7 @@
 */
 
 // --- Global Data Store ---
+// This will hold the resources loaded from the JSON file.
 let resources = [];
 
 // --- Element Selections ---
@@ -89,7 +90,7 @@ function renderTable() {
  * It should:
  * 1. Prevent the form's default submission.
  * 2. Get the values from the title, description, and link inputs.
- * 3. Create a new resource object with a unique ID (e.g., `id: `res_${Date.now()}`).
+ * 3. Create a new resource object with a unique ID (e.g., `id: \`res_${Date.now()}\``).
  * 4. Add this new resource object to the global `resources` array (in-memory only).
  * 5. Call `renderTable()` to refresh the list.
  * 6. Reset the form.
@@ -156,4 +157,5 @@ async function loadAndInitialize() {
 }
 
 // --- Initial Page Load ---
+// Call the main async function to start the application.
 loadAndInitialize();
