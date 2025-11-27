@@ -12,7 +12,7 @@
 */
 
 // --- Element Selections ---
-// TODO: Select the section for the week list ('#week-list-section').
+let listSection = document.getElementById("week-list-section");
 
 // --- Functions ---
 
@@ -24,7 +24,27 @@
  * (This is how the detail page will know which week to load).
  */
 function createWeekArticle(week) {
-  // ... your implementation here ...
+  let { id, title, startDate, description } = week;
+  
+  const article = document.createElement("article");
+  const h2 = document.createElement("h2");
+  const dateP = document.createElement("p");
+  const descP = document.createElement("p");
+  const link = document.createElement("a");
+
+  h2.textContent = title;
+  dateP.textContent = `Starts on: ${startDate}`;
+  descP.textContent = description;
+
+  link.href = `details.html?id=${id}`;
+  link.textContent = "View Details & Discussion";
+
+  article.appendChild(h2);
+  article.appendChild(dateP);
+  article.appendChild(descP);
+  article.appendChild(link);
+
+  return article;
 }
 
 /**
