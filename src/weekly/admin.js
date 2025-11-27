@@ -82,10 +82,11 @@ function renderTable() {
  */
 function handleAddWeek(event) {
   event.preventDefault();
-  const titleInput = document.querySelector("#title");
-  const descriptionInput = document.querySelector("#description");
-  const linksInput = document.querySelector("#week-links");
-  const linksArray = linksInput.value.split("\n").filter((x) => x.trim() !== "");
+const titleInput = document.querySelector("#week-title");
+const startDateInput = document.querySelector("#week-start-date");
+const descriptionInput = document.querySelector("#week-description");
+const linksInput = document.querySelector("#week-links");
+const linksArray = linksInput.value.split("\n").filter(x => x.trim() !== "");  
 
   const newWeek = {
     id: `week_${Date.now()}`,
