@@ -59,7 +59,21 @@ function createWeekArticle(week) {
  * - Append the returned <article> element to `listSection`.
  */
 async function loadWeeks() {
-  // ... your implementation here ...
+  try {
+    const response = await fetch("weeks.json");
+    const weeks = await response.json();
+
+    listSection.innerHTML = "";
+
+    weeks.forEach(week => {
+      const articleElement = createWeekArticle(week);
+      listSection.appendChild(articleElement);
+    });
+
+  } catch (error) {
+    console.error("Failed to load weeks:", error);
+    listSection.innerHTML = "<p style='color:red;'>Error loading weeks data.</p>";
+  }
 }
 
 // --- Initial Page Load ---
