@@ -60,18 +60,24 @@ function createWeekArticle(week) {
  */
 async function loadWeeks() {
   try {
-    const response = await fetch("weeks.json");
-    const weeks = await response.json();
+    // Prefer the API endpoint so list reflects admin changes
+    let response = await fetch('api/index.php?resource=weeks', { cache: 'no-store' });
+    if (!response.ok) {
+      // fallback to static JSON
+      response = await fetch('api/weeks.json', { cache: 'no-store' });
+      if (!response.ok) throw new Error(`Failed to fetch weeks: ${response.status}`);
+      const weeks = await response.json();
+      listSection.innerHTML = '';
+      weeks.forEach(week => listSection.appendChild(createWeekArticle(week)));
+      return;
+    }
 
-    listSection.innerHTML = "";
-
-    weeks.forEach(week => {
-      const articleElement = createWeekArticle(week);
-      listSection.appendChild(articleElement);
-    });
-
+    const body = await response.json();
+    const weeks = Array.isArray(body) ? body : (body.data || []);
+    listSection.innerHTML = '';
+    weeks.forEach(week => listSection.appendChild(createWeekArticle(week)));
   } catch (error) {
-    console.error("Failed to load weeks:", error);
+    console.error('Failed to load weeks:', error);
     listSection.innerHTML = "<p style='color:red;'>Error loading weeks data.</p>";
   }
 }
@@ -79,3 +85,12 @@ async function loadWeeks() {
 // --- Initial Page Load ---
 // Call the function to populate the page.
 loadWeeks();
+
+// Listen for changes from admin page (other tab/window) using localStorage event
+window.addEventListener('storage', (e) => {
+  if (!e.key) return;
+  if (e.key === 'weeks_updated') {
+    // reload weeks when admin notifies a change
+    loadWeeks();
+  }
+});
