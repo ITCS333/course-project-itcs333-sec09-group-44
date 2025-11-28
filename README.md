@@ -23,8 +23,9 @@ The project implements a simple course website with separate areas for **admin**
 
 ---
 
-## 🗂 Project Structure
+## 📁 Project Structure
 
+```text
 course-project-itcs333-sec09-group-44/
 │
 ├── assets/                    # Shared static assets (if needed later)
@@ -35,7 +36,7 @@ course-project-itcs333-sec09-group-44/
 │   │   ├── login.html         # Login page (email + password)
 │   │   ├── login.js           # Client-side validation + AJAX login
 │   │   ├── logout.php         # Destroys the session and redirects to login
-│   │   ├── students.json      # Sample student data (JSON)
+│   │   ├── students.json      # Sample student data (JSON) – not used by PHP APIs
 │   │   └── api/
 │   │       └── index.php      # Login API (validates user and creates session)
 │   │
@@ -60,18 +61,14 @@ course-project-itcs333-sec09-group-44/
 ├── index.html                 # Course homepage with navigation to all sections
 ├── README.md                  # Project documentation (this file)
 └── LICENSE                    # Default license (from GitHub Classroom)
-````
-
----
 
 ## ⚙️ How to Run the Project Locally (XAMPP)
 
-1. **Copy project to XAMPP**
+1. **Copy the project to XAMPP**
 
    Place the repository folder inside:
 
-   C:\xampp\htdocs\course-project-itcs333-sec09-group-44
-   ```
+   `C:\xampp\htdocs\course-project-itcs333-sec09-group-44`
 
 2. **Start XAMPP**
 
@@ -79,14 +76,13 @@ course-project-itcs333-sec09-group-44/
 
 3. **Create the database**
 
-   * Open **phpMyAdmin** at `http://localhost/phpmyadmin/`.
+   * Open phpMyAdmin at `http://localhost/phpmyadmin/`.
 
    * Create a database named:
 
-     itcs333_project
-     ```
+     `itcs333_project`
 
-   * Create the required tables:
+   * Create the required tables.
 
    **Table `users`**
 
@@ -108,8 +104,7 @@ course-project-itcs333-sec09-group-44/
 
    Visit:
 
-   http://localhost/course-project-itcs333-sec09-group-44/create_admin_user.php
-   ```
+   `http://localhost/course-project-itcs333-sec09-group-44/create_admin_user.php`
 
    This script will insert an admin user into the `users` table
    (for example: email `admin@uob.edu.bh` with a secure password).
@@ -118,8 +113,7 @@ course-project-itcs333-sec09-group-44/
 
    In your browser, go to:
 
-   http://localhost/course-project-itcs333-sec09-group-44/index.html
-   ```
+   `http://localhost/course-project-itcs333-sec09-group-44/index.html`
 
    Use the navigation menu to:
 
@@ -138,36 +132,32 @@ Implemented by **Ajlan Isa Ajlan Ramadhan (202303872)**.
 * Secure login page with client-side validation (`login.html`, `login.js`).
 * Login API using PDO prepared statements and password hashing (`src/auth/api/index.php`).
 * PHP sessions to protect admin pages (`src/admin/manage_users.php`).
-* Admin portal:
 
-  * Change admin password (current + new) via `admin_password.php`.
-  * Full CRUD for students:
+**Admin portal**
 
-    * Add student with default password (hashed in DB).
-    * Edit student name and email (with validation and duplicate checks).
-    * Optional change of student ID (with duplicate check).
-    * Delete student.
-  * Search box (by name / ID / email).
-  * Clickable column headers for sorting (Name / Student ID / Email).
+* Change admin password (current + new) via `admin_password.php`.
+* Full CRUD for students:
+
+  * Add student with default password (hashed in DB).
+  * Edit student name and email (with validation and duplicate checks).
+  * Optional change of student ID (with duplicate check).
+  * Delete student.
+* Search box (by name / ID / email).
+* Clickable column headers for sorting (Name / Student ID / Email).
 * Shared styling via `src/common/styles.css` to keep a consistent look.
 
 ---
 
 ## 🌐 Live Hosted Link
 
-At the moment, the project is developed and tested **locally** using XAMPP:
+The course instructions mention hosting on Replit.
+Currently, the project is developed and tested **locally** using XAMPP:
 
-http://localhost/course-project-itcs333-sec09-group-44/index.html
-```
+`http://localhost/course-project-itcs333-sec09-group-44/index.html`
 
-(If the group later hosts the project on Replit or another service, the live URL can be added here.)
+(If the group later hosts the project online, the live URL can be added here.)
 
----
-
-## 📅 Submission Notes
+## 📝 Submission Notes
 
 * This repository is the official GitHub Classroom repo for **ITCS333 – Group 44**.
-
----
-
 © 2025 University of Bahrain – ITCS333 Course Project – **Group 44**
