@@ -14,6 +14,8 @@
 // --- Global Data Store ---
 // This will hold the weekly data loaded from the JSON file.
 let weeks = [];
+let editWeekId = null;
+let initialized = false; // guard to avoid duplicate listeners
 
 // --- Element Selections ---
 let weekForm = document.querySelector("#week-form");
@@ -40,8 +42,8 @@ function createWeekRow(week) {
     <td>${week.title}</td>
     <td>${week.description}</td>
     <td>
-        <button class="edit-btn" data-id="${week.id}">Edit</button>
-        <button class="delete-btn" data-id="${week.id}">Delete</button>
+        <button type="button" class="edit-btn" data-id="${week.id}">Edit</button>
+        <button type="button" class="delete-btn" data-id="${week.id}">Delete</button>
     </td>
   `;
 
@@ -87,18 +89,63 @@ const startDateInput = document.querySelector("#week-start-date");
 const descriptionInput = document.querySelector("#week-description");
 const linksInput = document.querySelector("#week-links");
 const linksArray = linksInput.value.split("\n").filter(x => x.trim() !== "");  
-
-  const newWeek = {
-    id: `week_${Date.now()}`,
+  const payload = {
     title: titleInput.value,
+    startDate: startDateInput.value,
     description: descriptionInput.value,
     links: linksArray
   };
 
-  weeks.push(newWeek);
-
-  renderTable();
-  weekForm.reset();
+  // If editing, send PUT, otherwise POST
+  if (editWeekId) {
+    payload.id = editWeekId;
+    fetch(`api/index.php?resource=weeks`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).then(r => r.json()).then(res => {
+      if (res.success) {
+        editWeekId = null;
+        weekForm.reset();
+        // If API returned the updated week, update local store and re-render immediately.
+        if (res.data && res.data.id) {
+          weeks = weeks.map(w => (w.id === res.data.id ? res.data : w));
+          renderTable();
+        } else {
+          loadAndInitialize();
+        }
+        // Notify other windows/tabs that weeks changed so list page can refresh
+        try { localStorage.setItem('weeks_updated', Date.now().toString()); } catch(e){}
+        // Refresh the full page shortly after success so the user sees server-side changes
+        setTimeout(() => location.reload(), 400);
+      } else {
+        console.error(res.error || 'Update failed');
+      }
+    }).catch(console.error);
+  } else {
+    fetch(`api/index.php?resource=weeks`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).then(r => r.json()).then(res => {
+      if (res.success) {
+        weekForm.reset();
+        // If API returned the created week, append locally and re-render immediately.
+        if (res.data && res.data.id) {
+          weeks.push(res.data);
+          renderTable();
+        } else {
+          loadAndInitialize();
+        }
+        // Notify other windows/tabs that weeks changed so list page can refresh
+        try { localStorage.setItem('weeks_updated', Date.now().toString()); } catch(e){}
+        // Refresh page to ensure server persisted the new week is visible everywhere
+        setTimeout(() => location.reload(), 400);
+      } else {
+        console.error(res.error || 'Create failed');
+      }
+    }).catch(console.error);
+  }
 }
 
 /**
@@ -112,10 +159,36 @@ const linksArray = linksInput.value.split("\n").filter(x => x.trim() !== "");
  * 4. Call `renderTable()` to refresh the list.
  */
 function handleTableClick(event) {
-   if (event.target.classList.contains("delete-btn")) {
-    const id = event.target.dataset.id;
-    weeks = weeks.filter((w) => w.id !== id);
-    renderTable();
+   const target = event.target;
+   if (target.classList.contains("delete-btn")) {
+    const id = target.dataset.id;
+    fetch(`api/index.php?resource=weeks&week_id=${encodeURIComponent(id)}`, {
+      method: 'DELETE'
+    }).then(r => r.json()).then(res => {
+        if (res.success) {
+          // Optimistically remove locally and re-render immediately so the user sees the change.
+          weeks = weeks.filter(w => w.id !== id);
+          renderTable();
+          // Notify other windows/tabs that weeks changed so list page can refresh
+          try { localStorage.setItem('weeks_updated', Date.now().toString()); } catch(e){}
+          // Also refresh the full page shortly after delete so the server-side state is visible
+          setTimeout(() => location.reload(), 400);
+        } else console.error(res.error || 'Delete failed');
+    }).catch(console.error);
+    return;
+  }
+
+  if (target.classList.contains("edit-btn")) {
+    const id = target.dataset.id;
+    // find week
+    const wk = weeks.find(w => w.id === id);
+    if (!wk) return;
+    document.querySelector('#week-title').value = wk.title || '';
+    document.querySelector('#week-start-date').value = wk.startDate || '';
+    document.querySelector('#week-description').value = wk.description || '';
+    document.querySelector('#week-links').value = (wk.links || []).join('\n');
+    editWeekId = id;
+    return;
   }
 }
 
@@ -130,11 +203,34 @@ function handleTableClick(event) {
  * 5. Add the 'click' event listener to `weeksTableBody` (calls `handleTableClick`).
  */
 async function loadAndInitialize() {
-  const response = await fetch("weeks.json");
-  weeks = await response.json();
+  // Try the API endpoint first (keeps data in sync after POST/PUT/DELETE).
+  try {
+  const resp = await fetch("api/index.php?resource=weeks", { cache: 'no-store' });
+    if (!resp.ok) throw new Error(`API fetch failed: ${resp.status}`);
+    const body = await resp.json();
+    if (Array.isArray(body)) weeks = body;
+    else if (body && body.success && Array.isArray(body.data)) weeks = body.data;
+    else weeks = [];
+  } catch (err) {
+    console.warn('API fetch failed, falling back to static weeks.json', err);
+    try {
+  const fallback = await fetch("api/weeks.json", { cache: 'no-store' });
+      if (!fallback.ok) throw new Error(`Fallback fetch failed: ${fallback.status}`);
+      weeks = await fallback.json();
+    } catch (err2) {
+      console.error('Failed to load weeks data', err2);
+      weeks = [];
+    }
+  }
+
   renderTable();
-  weekForm.addEventListener("submit", handleAddWeek);
-  weeksTableBody.addEventListener("click", handleTableClick);
+
+  // Add event listeners only once to avoid duplicate handlers
+  if (!initialized) {
+    if (weekForm) weekForm.addEventListener("submit", handleAddWeek);
+    if (weeksTableBody) weeksTableBody.addEventListener("click", handleTableClick);
+    initialized = true;
+  }
 }
 
 // --- Initial Page Load ---
