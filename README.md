@@ -2,83 +2,158 @@
 
 ## Course Project (2025 / 2026 – First Semester)
 
-### 🧩 Group 44 – Section 09
+### Group 44 – Section 09
 
-This repository contains the group project for **ITCS333: Internet Software Development** at the **University of Bahrain**.  
-It includes all five tasks, each assigned to a different member.
+This repository contains the group project for **ITCS333: Internet Software Development** at the **University of Bahrain**.
 
----
-
-### 👥 Group Members
-
-| Task | Name | Student ID | Status |
-|------|------|------------|--------|
-| 1 – Admin Portal & User Management | **Ajlan Isa Ajlan Ramadhan** | **202303872** | ✅ Completed |
-| 2 – Course Resources | *Hussain Yasser Ali* | *202304049* | 🔜 Pending |
-| 3 – Weekly Breakdown | *(Member 3 Name* | *(ID)* | 🔜 Pending |
-| 4 – Assignments | *(Member 4 Name)* | *(ID)* | 🔜 Pending |
-| 5 – Discussion Board | *Isa Nader Omran* | *202303812* | 🔜 Pending |
+The project implements a small course website with:
+- An **authentication system** (login / logout)
+- An **admin portal** to manage students
+- Pages for **course resources, weekly breakdown, assignments, and discussion board** (Tasks 2–5)
 
 ---
 
-### 🧠 Instructor & Coordinator
-- **Instructor:** Dr. Abdullah Khalifa AlDoseri  
-- **Course Coordinator:** Abdulla Ebrahim Subah  
+## 👥 Group Members
+
+| #  | Name                             | Student ID  |
+|----|----------------------------------|-------------|
+| 1  | **Ajlan Isa Ajlan Ramadhan**     | **202303872** |
+| 2  | **Hussain Yasser Ali**           | **202304049** |
+| 3  | **Khalid Abdulla**               | **202306240** |
+| 4  | **[Member 4 Name]**              | **[Member 4 ID]** |
+| 5  | **Isa Nader Omran**              | **202303812** |
 
 ---
 
-### 🗂 Project Structure
+## 🧩 Task Responsibilities
 
-```
+| Task | Description                               | Responsible Student                     | ID         | Status     |
+|------|-------------------------------------------|-----------------------------------------|------------|------------|
+| 1    | Admin Portal & User Management (Login, Admin Manage Students) | **Ajlan Isa Ajlan Ramadhan** | **202303872** | ✅ Completed |
+| 2    | Course Resources (Admin & Student views)  | **Hussain Yasser Ali**                  | **202304049** | 🔄 In Progress |
+| 3    | Weekly Breakdown                          | **Khalid Abdulla**                      | **202306240** | 🔄 In Progress |
+| 4    | Assignments                               | **[Member 4 Name]**                     | **[Member 4 ID]** | 🔄 In Progress |
+| 5    | Discussion Board                          | **Isa Nader Omran**                     | **202303812** | 🔄 In Progress |
+
+Update the **Status** column when each task is finished.
+
+---
+
+## 🌐 Live Hosted Application (Replit)
+
+Live demo (Replit):
+
+👉 [https://replit.com/@YOUR_USERNAME/itcs333-group44](https://replit.com/@YOUR_USERNAME/itcs333-group44)
+
+> 🔧 Replace the link above with your actual Replit project URL when you deploy.
+
+---
+
+## 🗂 Project Structure
+
+Main folders (simplified):
+
+```text
 course-project-itcs333-sec09-group-44/
 │
-├── assets/            → shared assets (CSS / JS / images)
-├── src/               → main course files (index, components, etc.)
+├── db_connect.php           # Database connection (PDO)
+├── index.html               # Course homepage (navigation to all main pages)
+├── README.md
 │
-├── task1/             → Task 1 – Admin Portal (Ajlan Isa Ajlan Ramadhan)
-│   ├── admin/
-│   ├── includes/
-│   ├── index.html
-│   ├── login.php
-│   ├── logout.php
-│   ├── script.js
-│   └── style.css
-│
-└── (other tasks to be added later)
-```
+└── src/
+    ├── common/
+    │   └── styles.css       # Shared styling
+    │
+    ├── auth/
+    │   ├── login.html       # Login page
+    │   ├── login.js         # Client-side validation + fetch to auth API
+    │   ├── logout.php       # Destroys session and redirects to login
+    │   └── api/
+    │       └── index.php    # Authentication API (JSON, sessions)
+    │
+    ├── admin/
+    │   ├── manage_users.php     # Admin-only page (password + students)
+    │   ├── manage_users.js      # Fetches students, CRUD, change password
+    │   └── api/
+    │       ├── index.php        # Students API (CRUD)
+    │       └── admin_password.php # Change admin password
+    │
+    ├── resources/               # Task 2 pages (to be implemented)
+    ├── weekly/                  # Task 3 pages (to be implemented)
+    ├── assignments/             # Task 4 pages (to be implemented)
+    └── discussion/              # Task 5 pages (to be implemented)
+🛠️ How to Run Locally (XAMPP)
+Copy the project folder into your XAMPP htdocs directory, e.g.:
 
----
+text
+Copy code
+C:\xampp\htdocs\course-project-itcs333-sec09-group-44\
+Start Apache and MySQL in XAMPP Control Panel.
 
-### ⚙️ Running Instructions
+Create the database in phpMyAdmin:
 
-1. **Start a local PHP server:**
-   ```bash
-   php -S localhost:8000
-   ```
-2. **Open in browser:**
-   ```
-   http://localhost:8000/task1/index.html
-   ```
-3. **Database Setup:**
-   - Database name: `itcs333`
-   - Import the `users` table into phpMyAdmin.
-   - Admin login: `admin@itcs333.com`
-   - Password: `123456`
+Database name: itcs333_project
 
----
+Import the SQL file that contains:
 
-### 📅 Submission Deadline
-**November 29, 2025**
+users table (for login)
 
----
+students table (for Task 1 admin portal)
 
-### 📝 Notes
-This project is developed collaboratively under the official **ITCS333 GitHub Classroom**.
+Make sure db_connect.php matches your local DB settings:
 
-Each member completes their assigned task (task1 – task5) in their own folder.
+php
+Copy code
+$host = "localhost";
+$db   = "itcs333_project";
+$user = "root";
+$pass = "";
+Open the site in your browser:
 
-Shared assets are placed in the **assets/** folder, and shared frontend templates are in the **src/** folder.
+text
+Copy code
+http://localhost/course-project-itcs333-sec09-group-44/index.html
+Use a valid user from the users table to log in:
 
-Task 1 (Admin Portal) was implemented by Ajlan Isa Ajlan Ramadhan (202303872), Group 44.
----
-© 2025 University of Bahrain | ITCS333 Course Project – Group 44
+If the user has role = 'admin', they will be redirected to the Admin Portal.
+
+Normal users are redirected to the main course page.
+
+✅ Task 1 – Admin Portal Summary
+Task 1 (by Ajlan Isa Ajlan Ramadhan – 202303872) implements:
+
+Login page (src/auth/login.html)
+
+Client-side validation (email format, password length)
+
+Sends JSON { email, password } to src/auth/api/index.php
+
+Authentication API (src/auth/api/index.php)
+
+Validates input
+
+Checks hashed password using password_verify
+
+Starts session and stores user_id, user_email, user_role, logged_in
+
+Admin protection
+
+src/admin/manage_users.php checks session and user_role === 'admin'
+
+Redirects to login.html if not logged in as admin
+
+Admin Portal features:
+
+Change admin password (admin_password.php + form + JS)
+
+View students in a table
+
+Add new student (with default hashed password)
+
+Edit student (name/email)
+
+Delete student
+
+Search and sort by name, student ID, or email
+
+© 2025 University of Bahrain – ITCS333 Course Project – Group 44
