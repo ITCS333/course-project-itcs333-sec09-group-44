@@ -1,20 +1,52 @@
 <?php
-require_once "db_connect.php";
+/**
+ * Helper script to create the initial admin user.
+ * Run it ONCE in the browser, then you can leave or delete this file.
+ *
+ * URL:
+ *   http://localhost/course-project-itcs333-sec09-group-44/create_admin_user.php
+ */
 
-// delete any existing admin with that email
-$conn->query("DELETE FROM users WHERE email = 'admin@uob.edu.bh'");
+require_once __DIR__ . "/db_connect.php"; // gives $pdo
 
-// create fresh admin with password admin123
-$passwordHash = password_hash("admin123", PASSWORD_BCRYPT);
+// --- configure the initial admin account here ---
+$adminEmail    = "admin@uob.edu.bh";
+$adminPassword = "Admin123"; // you can change this, but remember it
+$adminRole     = "admin";
 
-$stmt = $conn->prepare("INSERT INTO users (email, password, role) VALUES (?, ?, 'admin')");
-$stmt->bind_param("ss", $email, $password);
+try {
+    // 1) Check if this admin already exists
+    $check = $pdo->prepare("SELECT id FROM users WHERE email = :email");
+    $check->execute([":email" => $adminEmail]);
 
-$email = "admin@uob.edu.bh";
-$password = $passwordHash;
+    if ($check->fetch()) {
+        echo "<h2>Admin already exists.</h2>";
+        echo "<p>Email: <strong>" . htmlspecialchars($adminEmail) . "</strong></p>";
+        exit;
+    }
 
-if ($stmt->execute()) {
-    echo "Admin user created successfully.";
-} else {
-    echo "Error: " . $stmt->error;
+    // 2) Insert new admin
+    $hash = password_hash($adminPassword, PASSWORD_DEFAULT);
+
+    $insert = $pdo->prepare(
+        "INSERT INTO users (email, password, role, created_at)
+         VALUES (:email, :password, :role, NOW())"
+    );
+
+    $insert->execute([
+        ":email"    => $adminEmail,
+        ":password" => $hash,
+        ":role"     => $adminRole,
+    ]);
+
+    echo "<h2>Admin user created successfully ✅</h2>";
+    echo "<p>Email: <strong>" . htmlspecialchars($adminEmail) . "</strong></p>";
+    echo "<p>Password: <strong>" . htmlspecialchars($adminPassword) . "</strong></p>";
+    echo "<p>You can now go to:
+        <a href=\"src/auth/login.html\">Login page</a>
+    </p>";
+
+} catch (PDOException $e) {
+    echo "<h2>Error creating admin user ❌</h2>";
+    echo "<pre>" . htmlspecialchars($e->getMessage()) . "</pre>";
 }
