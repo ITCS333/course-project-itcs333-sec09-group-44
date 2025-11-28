@@ -124,21 +124,49 @@ function renderComments() {
  * 6. Call `renderComments()` to refresh the list.
  * 7. Clear the `newCommentText` textarea.
  */
-function handleAddComment(event) {
- event.preventDefault();
+async function handleAddComment(event) {
+  event.preventDefault();
 
   const text = newCommentText.value.trim();
   if (text === "") return;
 
-  const newComment = {
+  // Prepare payload for the API
+  const payload = {
+    week_id: currentWeekId,
     author: "Student",
     text: text
   };
 
-  currentComments.push(newComment);
-  renderComments();
+  try {
+    const resp = await fetch("api/index.php?resource=comments", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
 
-  newCommentText.value = "";
+    if (!resp.ok) {
+      // Try to parse error body for debugging
+      let errText = await resp.text();
+      console.error("Failed to post comment:", resp.status, errText);
+      return;
+    }
+
+    const data = await resp.json();
+
+    // If API returned success, re-load comments for this week from the API and render
+    if (data && data.success) {
+      // Re-fetch the comments for this week to ensure we display the authoritative list
+      await fetchComments();
+      newCommentText.value = "";
+      // Ensure the server-persisted JSON is visible (some setups need a short delay)
+      setTimeout(() => location.reload(), 400);
+    } else {
+      console.error("Unexpected API response when posting comment:", data);
+    }
+
+  } catch (err) {
+    console.error("Error posting comment:", err);
+  }
 }
 
 /**
@@ -161,33 +189,77 @@ function handleAddComment(event) {
 async function initializePage() {
   currentWeekId = getWeekIdFromURL();
 
+  // If no ID in the URL, try to pick the first week as a sensible default so the page still works
+  if (!currentWeekId) {
+    console.warn('No week id in URL; attempting to use the first week as default');
+    try {
+      const wres = await fetch('api/weeks.json');
+      if (wres.ok) {
+        const wdata = await wres.json();
+        if (Array.isArray(wdata) && wdata.length > 0) {
+          currentWeekId = wdata[0].id;
+          // Update URL so users can share/bookmark this week view (but don't reload)
+          const params = new URLSearchParams(window.location.search);
+          params.set('id', currentWeekId);
+          const newUrl = window.location.pathname + '?' + params.toString();
+          window.history.replaceState({}, '', newUrl);
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to pick default week:', e);
+    }
+  }
+
   if (!currentWeekId) {
     weekTitle.textContent = "Week not found.";
     return;
   }
 
   try {
-    const [weeksRes, commentsRes] = await Promise.all([
-      fetch("weeks.json"),
-      fetch("week-comments.json")
-    ]);
-
+    // Fetch week details from weeks.json and comments from the API endpoint for this week
+    const weeksRes = await fetch("api/weeks.json", { cache: 'no-store' });
+    if (!weeksRes.ok) throw new Error(`Failed to fetch weeks: ${weeksRes.status}`);
     const weeksData = await weeksRes.json();
-    const commentsData = await commentsRes.json();
 
-      if (!week) {
+    // Find the requested week by id (weeks.json uses an array of week objects)
+    const week = Array.isArray(weeksData) ? weeksData.find(w => w.id === currentWeekId) : null;
+    if (!week) {
       weekTitle.textContent = "Week not found.";
-      return;  
-      }
-    renderWeekDetails(week);
-    renderComments();
+      return;
+    }
 
-   
-    commentForm.addEventListener("submit", handleAddComment);
+    renderWeekDetails(week);
+
+    // Load comments for this week from the API (index.php?resource=comments&week_id=...)
+    await fetchComments();
+
+    if (commentForm) commentForm.addEventListener("submit", handleAddComment);
 
   } catch (error) {
     weekTitle.textContent = "Error loading data.";
   }
+
+}
+
+
+// Fetch comments for the current week from the API and render them
+async function fetchComments() {
+  if (!currentWeekId) return;
+  try {
+    // Read comments directly from the static JSON file
+    const resp = await fetch('api/comments.json', { cache: 'no-store' });
+    if (!resp.ok) throw new Error(`Failed to fetch comments.json: ${resp.status}`);
+    const commentsData = await resp.json();
+    // comments.json is an object keyed by week id
+    currentComments = (commentsData && commentsData[currentWeekId]) ? commentsData[currentWeekId] : [];
+
+    renderComments();
+  } catch (err) {
+    console.error('Error loading comments:', err);
+    currentComments = [];
+    renderComments();
+  }
+}
 
 // --- Initial Page Load ---
 initializePage();
