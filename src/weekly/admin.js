@@ -16,9 +16,10 @@
 let weeks = [];
 
 // --- Element Selections ---
-// TODO: Select the week form ('#week-form').
+let weekForm = document.querySelector("#week-form");
 
-// TODO: Select the weeks table body ('#weeks-tbody').
+let weeksTableBody = document.querySelector("#weeks-tbody");
+
 
 // --- Functions ---
 
@@ -33,8 +34,21 @@ let weeks = [];
  * - A "Delete" button with class "delete-btn" and `data-id="${id}"`.
  */
 function createWeekRow(week) {
-  // ... your implementation here ...
+  const tr = document.createElement("tr");
+
+  tr.innerHTML = `
+    <td>${week.title}</td>
+    <td>${week.description}</td>
+    <td>
+        <button class="edit-btn" data-id="${week.id}">Edit</button>
+        <button class="delete-btn" data-id="${week.id}">Delete</button>
+    </td>
+  `;
+
+  return tr;
 }
+  
+
 
 /**
  * TODO: Implement the renderTable function.
@@ -45,8 +59,13 @@ function createWeekRow(week) {
  * append the resulting <tr> to `weeksTableBody`.
  */
 function renderTable() {
-  // ... your implementation here ...
+  weeksTableBody.innerHTML = "";
+  weeks.forEach((week) => {
+    const row = createWeekRow(week);
+    weeksTableBody.appendChild(row);
+  });
 }
+
 
 /**
  * TODO: Implement the handleAddWeek function.
@@ -62,7 +81,24 @@ function renderTable() {
  * 7. Reset the form.
  */
 function handleAddWeek(event) {
-  // ... your implementation here ...
+  event.preventDefault();
+const titleInput = document.querySelector("#week-title");
+const startDateInput = document.querySelector("#week-start-date");
+const descriptionInput = document.querySelector("#week-description");
+const linksInput = document.querySelector("#week-links");
+const linksArray = linksInput.value.split("\n").filter(x => x.trim() !== "");  
+
+  const newWeek = {
+    id: `week_${Date.now()}`,
+    title: titleInput.value,
+    description: descriptionInput.value,
+    links: linksArray
+  };
+
+  weeks.push(newWeek);
+
+  renderTable();
+  weekForm.reset();
 }
 
 /**
@@ -76,7 +112,11 @@ function handleAddWeek(event) {
  * 4. Call `renderTable()` to refresh the list.
  */
 function handleTableClick(event) {
-  // ... your implementation here ...
+   if (event.target.classList.contains("delete-btn")) {
+    const id = event.target.dataset.id;
+    weeks = weeks.filter((w) => w.id !== id);
+    renderTable();
+  }
 }
 
 /**
@@ -90,7 +130,11 @@ function handleTableClick(event) {
  * 5. Add the 'click' event listener to `weeksTableBody` (calls `handleTableClick`).
  */
 async function loadAndInitialize() {
-  // ... your implementation here ...
+  const response = await fetch("weeks.json");
+  weeks = await response.json();
+  renderTable();
+  weekForm.addEventListener("submit", handleAddWeek);
+  weeksTableBody.addEventListener("click", handleTableClick);
 }
 
 // --- Initial Page Load ---
