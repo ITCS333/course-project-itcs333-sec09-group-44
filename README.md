@@ -16,8 +16,8 @@ The project implements a simple course website with separate areas for **admin**
 | 1 – Admin Portal & User Management | **Ajlan Isa Ajlan Ramadhan** | **202303872** | ✅ Completed |
 | 2 – Course Resources | *Hussain Yasser Ali* | *202304049* | 🔜 In progress |
 | 3 – Weekly Breakdown | *Khalid Abdulla* | *202306240* | 🔜 In progress |
-| 4 – Assignments | *(Member 4 Name)* | *(ID)* | 🔜 Pending |
-| 5 – Discussion Board | *Isa Nader Omran* | *202303812* | 🔜 In progress |
+| 4 – Assignments | *(Isa Nader Omran)* | *(202303812)* | 🔜 Pending |
+| 5 – Discussion Board | *n* | ** | 🔜 In progress |
 
 > Each task is implemented inside the `src/` folder using a shared layout and styles.
 
