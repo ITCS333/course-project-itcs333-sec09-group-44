@@ -14,61 +14,51 @@
     <!-- Page title -->
     <title>Web Dev Course Homepage</title>
 
-    <!-- Shared stylesheet (from src/common/styles.css) -->
+    <!-- Shared stylesheet -->
     <link rel="stylesheet" href="src/common/styles.css" />
+
+    <style>
+        body {
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        header {
+            margin-bottom: 25px;
+        }
+        nav ul {
+            padding-left: 18px;
+        }
+        nav ul li {
+            margin-bottom: 8px;
+        }
+    </style>
 </head>
 <body>
 
 <header>
     <h1>Welcome to the Web Development Course</h1>
-    <p>This homepage provides quick links to all main admin and student pages.</p>
+    <p>This homepage provides quick links to all admin and student pages.</p>
 </header>
 
 <main>
-    <!-- Site navigation -->
     <nav aria-label="Main site navigation">
         <h2>Site Navigation</h2>
 
         <ul>
             <!-- ===== General ===== -->
-            <li>
-                <a href="src/auth/login.html">Login</a>
-            </li>
+            <li><a href="src/auth/login.html">Login</a></li>
 
             <!-- ===== Admin Pages ===== -->
-            <li>
-                <a href="src/admin/manage_users.php">Admin Portal (Manage Students)</a>
-            </li>
-            <!--
-              NOTE: The following admin links assume your teammates will create
-              these pages under /src/admin/. If they choose different filenames,
-              just update the href values later.
-            -->
-            <li>
-                <a href="src/admin/admin_resources.html">Admin: Manage Resources</a>
-            </li>
-            <li>
-                <a href="src/admin/admin_weekly.html">Admin: Manage Weekly Breakdown</a>
-            </li>
-            <li>
-                <a href="src/admin/admin_assignments.html">Admin: Manage Assignments</a>
-            </li>
+            <li><a href="src/admin/manage_users.php">Admin Portal (Manage Students)</a></li>
+            <li><a href="src/admin/admin_resources.html">Admin: Manage Resources</a></li>
+            <li><a href="src/admin/admin_weekly.html">Admin: Manage Weekly Breakdown</a></li>
+            <li><a href="src/admin/admin_assignments.html">Admin: Manage Assignments</a></li>
 
             <!-- ===== Student Pages ===== -->
-            <!-- These link to the folders; when an index.html exists inside,
-                 it will open automatically. -->
-            <li>
-                <a href="src/resources/">View Course Resources</a>
-            </li>
-            <li>
-                <a href="src/weekly/">View Weekly Breakdown</a>
-            </li>
-            <li>
-                <a href="src/assignments/">View Assignments</a>
-            </li>
-            <li>
-                <a href="src/discussion/">General Discussion Board</a>
-            </li>
+            <li><a href="src/resources/">View Course Resources</a></li>
+            <li><a href="src/weekly/">View Weekly Breakdown</a></li>
+            <li><a href="src/assignments/">View Assignments</a></li>
+            <li><a href="src/discussion/">General Discussion Board</a></li>
         </ul>
     </nav>
 </main>
