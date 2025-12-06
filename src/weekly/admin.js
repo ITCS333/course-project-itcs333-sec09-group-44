@@ -1,39 +1,27 @@
 /*
   Requirement: Make the "Manage Weekly Breakdown" page interactive.
-
-  Instructions:
-  1. Link this file to `admin.html` using:
-     <script src="admin.js" defer></script>
-  
-  2. In `admin.html`, add an `id="weeks-tbody"` to the <tbody> element
-     inside your `weeks-table`.
-  
-  3. Implement the TODOs below.
 */
 
 // --- Global Data Store ---
-// This will hold the weekly data loaded from the JSON file.
 let weeks = [];
 let editWeekId = null;
-let initialized = false; // guard to avoid duplicate listeners
+let initialized = false;
 
 // --- Element Selections ---
 let weekForm = document.querySelector("#week-form");
-
 let weeksTableBody = document.querySelector("#weeks-tbody");
+let submitBtn = document.querySelector("#add-week");
 
+// Input fields
+let titleInput = document.querySelector("#week-title");
+let startDateInput = document.querySelector("#week-start-date");
+let descriptionInput = document.querySelector("#week-description");
+let linksInput = document.querySelector("#week-links");
 
 // --- Functions ---
 
 /**
- * TODO: Implement the createWeekRow function.
- * It takes one week object {id, title, description}.
- * It should return a <tr> element with the following <td>s:
- * 1. A <td> for the `title`.
- * 2. A <td> for the `description`.
- * 3. A <td> containing two buttons:
- * - An "Edit" button with class "edit-btn" and `data-id="${id}"`.
- * - A "Delete" button with class "delete-btn" and `data-id="${id}"`.
+ * Create a table row for a week
  */
 function createWeekRow(week) {
   const tr = document.createElement("tr");
@@ -49,16 +37,9 @@ function createWeekRow(week) {
 
   return tr;
 }
-  
-
 
 /**
- * TODO: Implement the renderTable function.
- * It should:
- * 1. Clear the `weeksTableBody`.
- * 2. Loop through the global `weeks` array.
- * 3. For each week, call `createWeekRow()`, and
- * append the resulting <tr> to `weeksTableBody`.
+ * Render the table with all weeks
  */
 function renderTable() {
   weeksTableBody.innerHTML = "";
@@ -68,27 +49,14 @@ function renderTable() {
   });
 }
 
-
 /**
- * TODO: Implement the handleAddWeek function.
- * This is the event handler for the form's 'submit' event.
- * It should:
- * 1. Prevent the form's default submission.
- * 2. Get the values from the title, start date, and description inputs.
- * 3. Get the value from the 'week-links' textarea. Split this value
- * by newlines (`\n`) to create an array of link strings.
- * 4. Create a new week object with a unique ID (e.g., `id: \`week_${Date.now()}\``).
- * 5. Add this new week object to the global `weeks` array (in-memory only).
- * 6. Call `renderTable()` to refresh the list.
- * 7. Reset the form.
+ * Handle form submission (Add or Edit)
  */
 function handleAddWeek(event) {
   event.preventDefault();
-const titleInput = document.querySelector("#week-title");
-const startDateInput = document.querySelector("#week-start-date");
-const descriptionInput = document.querySelector("#week-description");
-const linksInput = document.querySelector("#week-links");
-const linksArray = linksInput.value.split("\n").filter(x => x.trim() !== "");  
+
+  const linksArray = linksInput.value.split("\n").filter(x => x.trim() !== "");  
+
   const payload = {
     title: titleInput.value,
     startDate: startDateInput.value,
@@ -96,143 +64,246 @@ const linksArray = linksInput.value.split("\n").filter(x => x.trim() !== "");
     links: linksArray
   };
 
-  // If editing, send PUT, otherwise POST
+  // If editing, send PUT request
   if (editWeekId) {
     payload.id = editWeekId;
+    
+    console.log("Updating week with ID:", editWeekId);
+    console.log("Payload:", payload);
+    
     fetch(`api/index.php?resource=weeks`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
-    }).then(r => r.json()).then(res => {
+    })
+    .then(r => r.json())
+    .then(res => {
+      console.log("Update response:", res);
+      
       if (res.success) {
-        editWeekId = null;
-        weekForm.reset();
-        // If API returned the updated week, update local store and re-render immediately.
-        if (res.data && res.data.id) {
-          weeks = weeks.map(w => (w.id === res.data.id ? res.data : w));
-          renderTable();
-        } else {
-          loadAndInitialize();
-        }
-        // Notify other windows/tabs that weeks changed so list page can refresh
-        try { localStorage.setItem('weeks_updated', Date.now().toString()); } catch(e){}
-        // Refresh the full page shortly after success so the user sees server-side changes
-        setTimeout(() => location.reload(), 400);
+        // Update local data
+        weeks = weeks.map(w => (w.id == editWeekId ? res.data : w));
+        renderTable();
+        
+        // Reset form and edit mode
+        resetForm();
+        
+        // Notify other tabs
+        try { 
+          localStorage.setItem('weeks_updated', Date.now().toString()); 
+        } catch(e) {}
+        
+        alert("Week updated successfully!");
       } else {
         console.error(res.error || 'Update failed');
+        alert("Failed to update week: " + (res.error || 'Unknown error'));
       }
-    }).catch(console.error);
-  } else {
+    })
+    .catch(err => {
+      console.error("Error during update:", err);
+      alert("Error updating week. Check console for details.");
+    });
+  } 
+  // If adding new, send POST request
+  else {
+    console.log("Adding new week");
+    console.log("Payload:", payload);
+    
     fetch(`api/index.php?resource=weeks`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
-    }).then(r => r.json()).then(res => {
+    })
+    .then(r => r.json())
+    .then(res => {
+      console.log("Create response:", res);
+      
       if (res.success) {
-        weekForm.reset();
-        // If API returned the created week, append locally and re-render immediately.
-        if (res.data && res.data.id) {
-          weeks.push(res.data);
-          renderTable();
-        } else {
-          loadAndInitialize();
-        }
-        // Notify other windows/tabs that weeks changed so list page can refresh
-        try { localStorage.setItem('weeks_updated', Date.now().toString()); } catch(e){}
-        // Refresh page to ensure server persisted the new week is visible everywhere
-        setTimeout(() => location.reload(), 400);
+        // Add to local data
+        weeks.push(res.data);
+        renderTable();
+        
+        // Reset form
+        resetForm();
+        
+        // Notify other tabs
+        try { 
+          localStorage.setItem('weeks_updated', Date.now().toString()); 
+        } catch(e) {}
+        
+        alert("Week added successfully!");
       } else {
         console.error(res.error || 'Create failed');
+        alert("Failed to add week: " + (res.error || 'Unknown error'));
       }
-    }).catch(console.error);
+    })
+    .catch(err => {
+      console.error("Error during create:", err);
+      alert("Error adding week. Check console for details.");
+    });
   }
 }
 
 /**
- * TODO: Implement the handleTableClick function.
- * This is an event listener on the `weeksTableBody` (for delegation).
- * It should:
- * 1. Check if the clicked element (`event.target`) has the class "delete-btn".
- * 2. If it does, get the `data-id` attribute from the button.
- * 3. Update the global `weeks` array by filtering out the week
- * with the matching ID (in-memory only).
- * 4. Call `renderTable()` to refresh the list.
+ * Reset form to add mode
+ */
+function resetForm() {
+  editWeekId = null;
+  weekForm.reset();
+  
+  if (submitBtn) {
+    submitBtn.textContent = "Add Week";
+  }
+  
+  console.log("Form reset, edit mode disabled");
+}
+
+/**
+ * Handle table clicks (Edit or Delete)
  */
 function handleTableClick(event) {
-   const target = event.target;
-   if (target.classList.contains("delete-btn")) {
+  const target = event.target;
+  
+  // Handle Delete button
+  if (target.classList.contains("delete-btn")) {
     const id = target.dataset.id;
+    
+    console.log("Delete clicked for ID:", id);
+    
+    if (!confirm("Are you sure you want to delete this week?")) {
+      return;
+    }
+    
     fetch(`api/index.php?resource=weeks&week_id=${encodeURIComponent(id)}`, {
       method: 'DELETE'
-    }).then(r => r.json()).then(res => {
-        if (res.success) {
-          // Optimistically remove locally and re-render immediately so the user sees the change.
-          weeks = weeks.filter(w => w.id !== id);
-          renderTable();
-          // Notify other windows/tabs that weeks changed so list page can refresh
-          try { localStorage.setItem('weeks_updated', Date.now().toString()); } catch(e){}
-          // Also refresh the full page shortly after delete so the server-side state is visible
-          setTimeout(() => location.reload(), 400);
-        } else console.error(res.error || 'Delete failed');
-    }).catch(console.error);
+    })
+    .then(r => r.json())
+    .then(res => {
+      console.log("Delete response:", res);
+      
+      if (res.success) {
+        // Remove from local data
+        weeks = weeks.filter(w => w.id != id);
+        renderTable();
+        
+        // Notify other tabs
+        try { 
+          localStorage.setItem('weeks_updated', Date.now().toString()); 
+        } catch(e) {}
+        
+        alert("Week deleted successfully!");
+      } else {
+        console.error(res.error || 'Delete failed');
+        alert("Failed to delete week: " + (res.error || 'Unknown error'));
+      }
+    })
+    .catch(err => {
+      console.error("Error during delete:", err);
+      alert("Error deleting week. Check console for details.");
+    });
+    
     return;
   }
 
+  // Handle Edit button
   if (target.classList.contains("edit-btn")) {
     const id = target.dataset.id;
-    // find week
-    const wk = weeks.find(w => w.id === id);
-    if (!wk) return;
-    document.querySelector('#week-title').value = wk.title || '';
-    document.querySelector('#week-start-date').value = wk.startDate || '';
-    document.querySelector('#week-description').value = wk.description || '';
-    document.querySelector('#week-links').value = (wk.links || []).join('\n');
+    
+    console.log("Edit clicked for ID:", id);
+    console.log("Current weeks array:", weeks);
+    
+    const wk = weeks.find(w => w.id == id);
+    
+    console.log("Found week:", wk);
+    
+    if (!wk) {
+      alert("Week not found in data!");
+      console.error("Week with ID", id, "not found in weeks array");
+      return;
+    }
+    
+    // Fill form with week data
+    if (titleInput) titleInput.value = wk.title || '';
+    if (startDateInput) startDateInput.value = wk.startDate || '';
+    if (descriptionInput) descriptionInput.value = wk.description || '';
+    if (linksInput) linksInput.value = (wk.links || []).join('\n');
+    
+    // Set edit mode
     editWeekId = id;
+    
+    console.log("Edit mode enabled for ID:", editWeekId);
+    
+    // Change button text
+    if (submitBtn) {
+      submitBtn.textContent = "Update Week";
+      console.log("Button text changed to 'Update Week'");
+    } else {
+      console.error("Submit button not found!");
+    }
+    
+    // Scroll to form
+    if (weekForm) {
+      weekForm.scrollIntoView({ behavior: 'smooth' });
+    }
+    
     return;
   }
 }
 
 /**
- * TODO: Implement the loadAndInitialize function.
- * This function needs to be 'async'.
- * It should:
- * 1. Use `fetch()` to get data from 'weeks.json'.
- * 2. Parse the JSON response and store the result in the global `weeks` array.
- * 3. Call `renderTable()` to populate the table for the first time.
- * 4. Add the 'submit' event listener to `weekForm` (calls `handleAddWeek`).
- * 5. Add the 'click' event listener to `weeksTableBody` (calls `handleTableClick`).
+ * Load weeks data and initialize page
  */
 async function loadAndInitialize() {
-  // Try the API endpoint first (keeps data in sync after POST/PUT/DELETE).
+  console.log("Initializing admin page...");
+  
   try {
-  const resp = await fetch("api/index.php?resource=weeks", { cache: 'no-store' });
-    if (!resp.ok) throw new Error(`API fetch failed: ${resp.status}`);
+    const resp = await fetch("api/index.php?resource=weeks", { cache: 'no-store' });
+    
+    if (!resp.ok) {
+      throw new Error(`API fetch failed: ${resp.status}`);
+    }
+    
     const body = await resp.json();
-    if (Array.isArray(body)) weeks = body;
-    else if (body && body.success && Array.isArray(body.data)) weeks = body.data;
-    else weeks = [];
-  } catch (err) {
-    console.warn('API fetch failed, falling back to static weeks.json', err);
-    try {
-  const fallback = await fetch("api/weeks.json", { cache: 'no-store' });
-      if (!fallback.ok) throw new Error(`Fallback fetch failed: ${fallback.status}`);
-      weeks = await fallback.json();
-    } catch (err2) {
-      console.error('Failed to load weeks data', err2);
+    
+    if (Array.isArray(body)) {
+      weeks = body;
+    } else if (body && body.success && Array.isArray(body.data)) {
+      weeks = body.data;
+    } else {
       weeks = [];
     }
+    
+    console.log("Loaded weeks:", weeks);
+  } catch (err) {
+    console.error('API fetch failed:', err);
+    weeks = [];
   }
 
   renderTable();
 
-  // Add event listeners only once to avoid duplicate handlers
+  // Add event listeners only once
   if (!initialized) {
-    if (weekForm) weekForm.addEventListener("submit", handleAddWeek);
-    if (weeksTableBody) weeksTableBody.addEventListener("click", handleTableClick);
+    if (weekForm) {
+      weekForm.addEventListener("submit", handleAddWeek);
+      console.log("Form submit listener added");
+    } else {
+      console.error("Week form not found!");
+    }
+    
+    if (weeksTableBody) {
+      weeksTableBody.addEventListener("click", handleTableClick);
+      console.log("Table click listener added");
+    } else {
+      console.error("Weeks table body not found!");
+    }
+    
+    if (!submitBtn) {
+      console.error("Submit button #add-week not found!");
+    }
+    
     initialized = true;
   }
 }
 
 // --- Initial Page Load ---
-// Call the main async function to start the application.
 loadAndInitialize();
