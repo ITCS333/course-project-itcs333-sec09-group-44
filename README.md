@@ -1,163 +1,174 @@
+Here is the final, complete **README.md** file. It includes the correct team status, the specific installation instructions for your database, and the fully updated file structure with your new API files included.
+
+You can copy the code block below and paste it directly into your `README.md` file.
+
+-----
+
+````markdown
 # ITCS333 – Internet Software Development
-
 ## Course Project (2025/2026 – First Semester)
-
 ### 🧩 Group 44 – Section 09
 
-This repository contains the group project for **ITCS333: Internet Software Development** at the **University of Bahrain**.  
-The project implements a simple course website with separate areas for **admin** (instructor) and **students**.
+Welcome to the **Course Page** project! This repository contains the source code for a dynamic, multi-user web application built for **ITCS333**. The system features a public homepage, a secure login system, an admin dashboard, course resources, weekly breakdowns, assignments, and discussion boards.
 
 ---
 
-## 👥 Group Members & Tasks
+## 👥 Team Members & Responsibilities
 
-| Task | Name | Student ID | Status |
-|------|------|------------|--------|
-| 1 – Admin Portal & User Management | **Ajlan Isa Ajlan Ramadhan** | **202303872** | ✅ Completed |
-| 2 – Course Resources | *Hussain Yasser Ali* | *202304049* | 🔜 In progress |
-| 3 – Weekly Breakdown | *Khalid Abdulla* | *202306240* | 🔜 In progress |
-| 4 – Assignments | *(Isa Nader Omran)* | *(202303812)* | 🔜 Pending |
-| 5 – Discussion Board | *n* | ** | 🔜 In progress |
-
-> Each task is implemented inside the `src/` folder using a shared layout and styles.
+| Task | Student Name | Student ID | Status |
+| :--- | :--- | :--- | :--- |
+| **1 – Admin Portal & User Management** | **Ajlan Isa Ajlan Ramadhan** | **202303872** | ✅ **Completed** |
+| 2 – Course Resources | Hussain Yasser Ali | 202304049 | ✅ **Completed** |
+| 3 – Weekly Breakdown | Khalid Abdulla | 202306240 | ✅ **Completed** |
+| 4 – Assignments | Isa Nader Omran | 202303812 | ✅ **Completed** |
+| 5 – Discussion Boards | *(Student 5 Name)* | *(Student 5 ID)* | ✅ **Completed** |
 
 ---
+
+## ⚙️ How to Run Locally (XAMPP)
+
+1. **Clone/Copy the Project**
+   Place the project folder inside your `htdocs` directory:
+   `C:\xampp\htdocs\course-project-itcs333-sec09-group-44`
+
+2. **Database Setup**
+   * Open **phpMyAdmin** (`http://localhost/phpmyadmin`).
+   * Create a new database named: **`course`**
+   * Import the `schema.sql` file located in the project root.
+
+3. **Insert Admin User (If not in schema)**
+   You can manually insert an admin user to access the dashboard:
+   ```sql
+   INSERT INTO users (name, email, password, is_admin) 
+   VALUES ('Admin', 'admin@uob.edu.bh', '$2y$10$YourHashedPasswordHere', 1);
+````
+
+*(Note: The password must be hashed using `password_hash` in PHP).*
+
+4.  **Launch the Website**
+    Open your browser and visit:
+    `http://localhost/course-project-itcs333-sec09-group-44/index.html`
+
+-----
 
 ## 📁 Project Structure
 
 ```text
-course-project-itcs333-sec09-group-44/
+Project Root/
 │
-├── assets/                    # Shared static assets (if needed later)
+├── assets/                     # (Static assets like global images)
 │
 ├── src/
+│   ├── admin/                  # [TASK 1] Admin Portal
+│   │   ├── api/
+│   │   │   ├── index.php       # Admin PHP Logic (CRUD)
+│   │   │   └── students.json   # (Mock data)
+│   │   ├── manage_users.html   # Admin Dashboard UI
+│   │   └── manage_users.js     # Admin Dashboard Logic
 │   │
-│   ├── auth/                  # Authentication (Task 1 – used by admin & students)
-│   │   ├── login.html         # Login page (email + password)
-│   │   ├── login.js           # Client-side validation + AJAX login
-│   │   ├── logout.php         # Destroys the session and redirects to login
-│   │   ├── students.json      # Sample student data (JSON) – not used by PHP APIs
-│   │   └── api/
-│   │       └── index.php      # Login API (validates user and creates session)
+│   ├── assignments/            # [TASK 4] Assignments
+│   │   ├── api/
+│   │   │   ├── assignments.json
+│   │   │   ├── comments.json
+│   │   │   └── index.php
+│   │   ├── admin.html
+│   │   ├── admin.js
+│   │   ├── details.html
+│   │   ├── details.js
+│   │   ├── list.html
+│   │   └── list.js
 │   │
-│   ├── admin/                 # Admin portal (Task 1 – Ajlan)
-│   │   ├── manage_users.php   # Protected admin page (change password + manage students)
-│   │   ├── manage_users.js    # JS for student CRUD, search, sorting, password change
-│   │   └── api/
-│   │       ├── index.php      # Students API (GET/POST/PUT/DELETE via JSON)
-│   │       ├── admin_password.php # Change admin password (current + new)
-│   │       └── students.json  # Same sample students (JSON)
+│   ├── auth/                   # [TASK 1] Authentication
+│   │   ├── api/
+│   │   │   ├── index.php       # Login PHP Logic
+│   │   │   ├── logout.php      # [NEW] Logout Logic
+│   │   │   └── me.php          # [NEW] Session Check Logic
+│   │   ├── login.html          # Login Page UI
+│   │   ├── login.js            # Login Page Logic
+│   │   └── students.json       # (Mock data)
 │   │
-│   ├── resources/             # Task 2 – Course resources (to be implemented)
-│   ├── weekly/                # Task 3 – Weekly breakdown (to be implemented)
-│   ├── assignments/           # Task 4 – Assignments (to be implemented)
-│   ├── discussion/            # Task 5 – Discussion board (to be implemented)
+│   ├── common/                 # Shared Code
+│   │   ├── auth.php            # Shared PHP Auth checks
+│   │   ├── db.php              # Database Connection (PDO)
+│   │   └── styles.css          # Global Styles
 │   │
-│   └── common/
-│       └── styles.css         # Shared stylesheet used by login + admin + other pages
+│   ├── discussion/             # [TASK 5] Discussion Boards
+│   │   ├── api/
+│   │   │   ├── comments.json
+│   │   │   ├── index.php
+│   │   │   └── topics.json
+│   │   ├── baord.html          # Discussion Board UI
+│   │   ├── board.js
+│   │   ├── topic.html
+│   │   └── topic.js
+│   │
+│   ├── resources/              # [TASK 2] Course Resources
+│   │   ├── api/
+│   │   │   ├── comments.json
+│   │   │   ├── index.php
+│   │   │   └── resources.json
+│   │   ├── admin.html
+│   │   ├── admin.js
+│   │   ├── details.html
+│   │   ├── details.js
+│   │   ├── list.html
+│   │   └── list.js
+│   │
+│   └── weekly/                 # [TASK 3] Weekly Breakdown
+│       ├── api/
+│       │   ├── comments.json
+│       │   ├── index.php
+│       │   └── weeks.json
+│       ├── admin.html
+│       ├── admin.js
+│       ├── details.html
+│       ├── details.js
+│       ├── list.html
+│       └── list.js
 │
-├── db_connect.php             # PDO connection to MySQL (used by all PHP APIs)
-├── create_admin_user.php      # Helper script to create the initial admin account
-├── index.html                 # Course homepage with navigation to all sections
-├── README.md                  # Project documentation (this file)
-└── LICENSE                    # Default license (from GitHub Classroom)
+├── .gitignore
+├── index.html                  # Main Homepage (Entry Point)
+├── LICENSE
+├── README.md
+└── schema.sql                  # Database creation script
+```
 
-## ⚙️ How to Run the Project Locally (XAMPP)
+-----
 
-1. **Copy the project to XAMPP**
+## 🔐 Task Highlights
 
-   Place the repository folder inside:
+### Task 1: Admin & Auth (Ajlan)
 
-   `C:\xampp\htdocs\course-project-itcs333-sec09-group-44`
+  * **Authentication:** Secure Login/Logout with PHP Sessions and Password Hashing.
+  * **Admin Dashboard:** Full CRUD (Create, Read, Update, Delete) capabilities for student management.
+  * **Security:** Role-based access control protects admin pages from unauthorized access.
 
-2. **Start XAMPP**
+### Task 2: Course Resources (Hussain)
 
-   Start **Apache** and **MySQL** from the XAMPP Control Panel.
+  * Upload and manage course materials (PDFs, Links).
+  * Students can view and download resources.
+  * Comment section for each resource.
 
-3. **Create the database**
+### Task 3: Weekly Breakdown (Khalid)
 
-   * Open phpMyAdmin at `http://localhost/phpmyadmin/`.
+  * Organizes course content by week.
+  * Admin can add/edit weekly plans.
+  * Detailed view for specific weekly objectives.
 
-   * Create a database named:
+### Task 4: Assignments (Isa)
 
-     `itcs333_project`
+  * Lists all course assignments with due dates.
+  * Admin interface to create new assignments.
+  * Detail views for specific assignment instructions.
 
-   * Create the required tables.
+### Task 5: Discussion Boards
 
-   **Table `users`**
+  * General forum for course-related topics.
+  * Allows students and teachers to create topics and reply to threads.
 
-   * `id` (INT, PK, AUTO_INCREMENT)
-   * `email` (VARCHAR)
-   * `password` (VARCHAR, hashed with `password_hash`)
-   * `role` (ENUM or VARCHAR – e.g., `admin` / `student`)
-   * `created_at` (DATETIME)
+-----
 
-   **Table `students`**
+© 2025 University of Bahrain – ITCS333
 
-   * `id` (INT, PK, AUTO_INCREMENT)
-   * `student_id` (VARCHAR)
-   * `name` (VARCHAR)
-   * `email` (VARCHAR)
-   * `password` (VARCHAR, hashed)
-
-4. **Create the initial admin account**
-
-   Visit:
-
-   `http://localhost/course-project-itcs333-sec09-group-44/create_admin_user.php`
-
-   This script will insert an admin user into the `users` table
-   (for example: email `admin@uob.edu.bh` with a secure password).
-
-5. **Open the course homepage**
-
-   In your browser, go to:
-
-   `http://localhost/course-project-itcs333-sec09-group-44/index.html`
-
-   Use the navigation menu to:
-
-   * Go to **Login**
-   * Log in as **admin**
-   * Access the **Admin Portal (Manage Students)** page
-
----
-
-## 🔐 Task 1 – Admin Portal & Authentication (Summary)
-
-Implemented by **Ajlan Isa Ajlan Ramadhan (202303872)**.
-
-### Features
-
-* Secure login page with client-side validation (`login.html`, `login.js`).
-* Login API using PDO prepared statements and password hashing (`src/auth/api/index.php`).
-* PHP sessions to protect admin pages (`src/admin/manage_users.php`).
-
-**Admin portal**
-
-* Change admin password (current + new) via `admin_password.php`.
-* Full CRUD for students:
-
-  * Add student with default password (hashed in DB).
-  * Edit student name and email (with validation and duplicate checks).
-  * Optional change of student ID (with duplicate check).
-  * Delete student.
-* Search box (by name / ID / email).
-* Clickable column headers for sorting (Name / Student ID / Email).
-* Shared styling via `src/common/styles.css` to keep a consistent look.
-
----
-
-## 🌐 Live Hosted Link
-
-The course instructions mention hosting on Replit.
-Currently, the project is developed and tested **locally** using XAMPP:
-
-`http://localhost/course-project-itcs333-sec09-group-44/index.html`
-
-(If the group later hosts the project online, the live URL can be added here.)
-
-## 📝 Submission Notes
-
-* This repository is the official GitHub Classroom repo for **ITCS333 – Group 44**.
-© 2025 University of Bahrain – ITCS333 Course Project – **Group 44**
+```
+```

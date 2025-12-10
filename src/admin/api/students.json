@@ -1,27 +1,27 @@
 [
   {
     "name": "Ali Hassan",
-    "student_id": "202101234",
+    "id": "202101234",
     "email": "202101234@stu.uob.edu.bh"
   },
   {
     "name": "Fatema Ahmed",
-    "student_id": "202205678",
+    "id": "202205678",
     "email": "202205678@stu.uob.edu.bh"
   },
   {
     "name": "Mohamed Abdulla",
-    "student_id": "202311001",
+    "id": "202311001",
     "email": "202311001@stu.uob.edu.bh"
   },
   {
     "name": "Noora Salman",
-    "student_id": "202100987",
+    "id": "202100987",
     "email": "202100987@stu.uob.edu.bh"
   },
   {
     "name": "Zainab Ebrahim",
-    "student_id": "202207766",
+    "id": "202207766",
     "email": "202207766@stu.uob.edu.bh"
   }
 ]
