@@ -1,10 +1,3 @@
-Here is the final, complete **README.md** file. It includes the correct team status, the specific installation instructions for your database, and the fully updated file structure with your new API files included.
-
-You can copy the code block below and paste it directly into your `README.md` file.
-
------
-
-````markdown
 # ITCS333 – Internet Software Development
 ## Course Project (2025/2026 – First Semester)
 ### 🧩 Group 44 – Section 09
@@ -38,10 +31,8 @@ Welcome to the **Course Page** project! This repository contains the source code
 
 3. **Insert Admin User (If not in schema)**
    You can manually insert an admin user to access the dashboard:
-   ```sql
    INSERT INTO users (name, email, password, is_admin) 
    VALUES ('Admin', 'admin@uob.edu.bh', '$2y$10$YourHashedPasswordHere', 1);
-````
 
 *(Note: The password must be hashed using `password_hash` in PHP).*
 
@@ -53,8 +44,7 @@ Welcome to the **Course Page** project! This repository contains the source code
 
 ## 📁 Project Structure
 
-```text
-Project Root/
+course-project-itcs333-sec09-group-44/
 │
 ├── assets/                     # (Static assets like global images)
 │
@@ -169,6 +159,3 @@ Project Root/
 -----
 
 © 2025 University of Bahrain – ITCS333
-
-```
-```

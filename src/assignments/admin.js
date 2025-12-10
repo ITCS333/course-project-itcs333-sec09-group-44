@@ -14,11 +14,12 @@
 // --- Global Data Store ---
 // This will hold the assignments loaded from the JSON file.
 let assignments = [];
+let editingAssignmentId = null;
 
 // --- Element Selections ---
-// TODO: Select the assignment form ('#assignment-form').
+const assignmentForm = document.querySelector('#assignment-form');
 
-// TODO: Select the assignments table body ('#assignments-tbody').
+const assignmentsTableBody = document.querySelector('#assignments-tbody');
 
 // --- Functions ---
 
@@ -33,7 +34,35 @@ let assignments = [];
  * - A "Delete" button with class "delete-btn" and `data-id="${id}"`.
  */
 function createAssignmentRow(assignment) {
-  // ... your implementation here ...
+  const row = document.createElement('tr');
+  
+  const titleCell = document.createElement('td');
+  titleCell.textContent = assignment.title;
+  row.appendChild(titleCell);
+  
+  const dueDateCell = document.createElement('td');
+  dueDateCell.textContent = assignment.due_date;
+  row.appendChild(dueDateCell);
+  
+  const actionsCell = document.createElement('td');
+  
+  const editButton = document.createElement('button');
+  editButton.type = 'button';
+  editButton.className = 'edit-btn';
+  editButton.dataset.id = assignment.id;
+  editButton.textContent = 'Edit';
+  actionsCell.appendChild(editButton);
+  
+  const deleteButton = document.createElement('button');
+  deleteButton.type = 'button';
+  deleteButton.className = 'delete-btn';
+  deleteButton.dataset.id = assignment.id;
+  deleteButton.textContent = 'Delete';
+  actionsCell.appendChild(deleteButton);
+  
+  row.appendChild(actionsCell);
+  
+  return row;
 }
 
 /**
@@ -45,7 +74,12 @@ function createAssignmentRow(assignment) {
  * append the resulting <tr> to `assignmentsTableBody`.
  */
 function renderTable() {
-  // ... your implementation here ...
+  assignmentsTableBody.innerHTML = '';
+  
+  for (const assignment of assignments) {
+    const row = createAssignmentRow(assignment);
+    assignmentsTableBody.appendChild(row);
+  }
 }
 
 /**
@@ -60,7 +94,61 @@ function renderTable() {
  * 6. Reset the form.
  */
 function handleAddAssignment(event) {
-  // ... your implementation here ...
+  event.preventDefault();
+  
+  const title = document.querySelector('#assignment-title').value;
+  const description = document.querySelector('#assignment-description').value;
+  const dueDate = document.querySelector('#assignment-due-date').value;
+  const files = document.querySelector('#assignment-files').value;
+  
+  if (editingAssignmentId) {
+    // Update existing assignment via API
+    const updateData = {
+      id: editingAssignmentId,
+      title: title,
+      description: description,
+      due_date: dueDate,
+      files: files
+    };
+    
+    fetch('./api/index.php?resource=assignments', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updateData)
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        editingAssignmentId = null;
+        document.querySelector('#add-assignment').textContent = 'Add Assignment';
+        assignmentForm.reset();
+        loadAndInitialize();
+      }
+    })
+    .catch(error => console.error('Error updating assignment:', error));
+  } else {
+    // Create new assignment via API
+    const newAssignmentData = {
+      title: title,
+      description: description,
+      due_date: dueDate,
+      files: files
+    };
+    
+    fetch('./api/index.php?resource=assignments', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newAssignmentData)
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        assignmentForm.reset();
+        loadAndInitialize();
+      }
+    })
+    .catch(error => console.error('Error creating assignment:', error));
+  }
 }
 
 /**
@@ -74,7 +162,64 @@ function handleAddAssignment(event) {
  * 4. Call `renderTable()` to refresh the list.
  */
 function handleTableClick(event) {
-  // ... your implementation here ...
+  const target = event.target;
+  
+  if (target.classList.contains('delete-btn')) {
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    
+    const assignmentId = target.dataset.id;
+    console.log('Delete clicked for ID:', assignmentId);
+    
+    // Use a simple prompt instead of confirm - or just delete directly
+    const userConfirmed = window.confirm('Are you sure you want to delete this assignment?');
+    
+    if (userConfirmed) {
+      console.log('Confirmed delete for ID:', assignmentId);
+      fetch(`./api/index.php?resource=assignments&id=${assignmentId}`, {
+        method: 'DELETE'
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Delete response:', data);
+        if (data.success) {
+          console.log('Delete successful, reloading...');
+          loadAndInitialize();
+        } else {
+          alert('Failed to delete assignment: ' + (data.message || 'Unknown error'));
+        }
+      })
+      .catch(error => {
+        console.error('Error deleting assignment:', error);
+        alert('Error deleting assignment: ' + error.message);
+      });
+    } else {
+      console.log('Delete cancelled');
+    }
+    
+  } else if (target.classList.contains('edit-btn')) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const assignmentId = target.dataset.id;
+    console.log('Edit clicked for ID:', assignmentId);
+    
+    const assignment = assignments.find(asg => asg.id == assignmentId);
+    
+    if (assignment) {
+      editingAssignmentId = assignmentId;
+      
+      document.querySelector('#assignment-title').value = assignment.title;
+      document.querySelector('#assignment-description').value = assignment.description || '';
+      document.querySelector('#assignment-due-date').value = assignment.due_date;
+      document.querySelector('#assignment-files').value = assignment.files || '';
+      
+      document.querySelector('#add-assignment').textContent = 'Update Assignment';
+      
+      document.querySelector('#assignment-title').focus();
+    }
+  }
 }
 
 /**
@@ -88,7 +233,31 @@ function handleTableClick(event) {
  * 5. Add the 'click' event listener to `assignmentsTableBody` (calls `handleTableClick`).
  */
 async function loadAndInitialize() {
-  // ... your implementation here ...
+  try {
+    const response = await fetch('./api/index.php?resource=assignments');
+    const data = await response.json();
+    
+    if (data.success) {
+      assignments = data.data;
+    } else {
+      assignments = [];
+    }
+    
+    renderTable();
+    
+    // Only add listeners on first load
+    if (assignmentForm && !assignmentForm.hasListener) {
+      assignmentForm.addEventListener('submit', handleAddAssignment);
+      assignmentForm.hasListener = true;
+    }
+    
+    if (assignmentsTableBody && !assignmentsTableBody.hasListener) {
+      assignmentsTableBody.addEventListener('click', handleTableClick);
+      assignmentsTableBody.hasListener = true;
+    }
+  } catch (error) {
+    console.error('Error loading assignments:', error);
+  }
 }
 
 // --- Initial Page Load ---

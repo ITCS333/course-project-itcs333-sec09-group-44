@@ -9,34 +9,61 @@
 <html lang="en">
 <head>
     <!-- TODO: Add meta tags for charset and viewport. -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <!-- TODO: Add a title, e.g., "Course Assignments". -->
+    <title>Course Assignments</title>
 
     <!-- TODO: Link to your CSS framework or stylesheet. -->
+    <link rel="stylesheet" href="../common/styles.css">
 </head>
 <body>
 
-    <!-- TODO: Create a 'header' with a main heading ('h1') "Course Assignments". -->
+    <!-- TODO: Create a 'header' with a main heading ('h1'). Use a title like "Course Assignments". -->
+    <header>
+        <h1>Course Assignments</h1>
+    </header>
 
     <!-- TODO: Create the 'main' content area. -->
+    <main>
         <!-- TODO: Create a 'section' to contain the list of assignments. -->
+        <section id="assignment-list-section">
             <!-- TODO: Add 2-3 dummy assignment entries using the structure below. -->
-
-            <!-- Example Assignment 1: -->
+            <!-- Assignment 1: -->
             <!-- TODO: Use an 'article' element for each assignment. -->
-                <!-- TODO: Add a heading ('h2') for the assignment's title (e.g., "Assignment 1: HTML Basics"). -->
-                <!-- TODO: Add a paragraph ('p') to display the due date, e.g., "Due: YYYY-MM-DD". -->
-                <!-- TODO: Add another paragraph ('p') for a brief description. -->
-                <!-- TODO: Add an anchor tag ('a') that links to the detail page. 
-                     - For now, the 'href' can be "assignment-detail.html".
-                     - The link text should be "View Details & Discussion". -->
-            <!-- End of article. -->
+            <!-- TODO: Add a heading ('h2') for the assignment's title (e.g., "Assignment 1: HTML Basics"). -->
+            <!-- TODO: Add a paragraph ('p') to display the due date, e.g., "Due: YYYY-MM-DD". -->
+            <!-- TODO: Add another paragraph ('p') with a brief description of the assignment. -->
+            <!-- TODO: Add an anchor ('a') that links to the detail page using the assignment's ID. Use href="details.html?id=asg_1". -->
+            <article>
+                <h2>Assignment 1: HTML Basics</h2>
+                <p>Due: 2025-12-15</p>
+                <p>Create a well-formed HTML5 document demonstrating semantic HTML elements with proper structure, headers, sections, and articles.</p>
+                <a href="details.html?id=asg_1">View Details & Discussion</a>
+            </article>
 
-            <!-- Example Assignment 2: -->
-            <!-- TODO: Create a second 'article' for another assignment with the same structure. -->
+            <!-- Assignment 2: -->
+            <article>
+                <h2>Assignment 2: CSS Styling</h2>
+                <p>Due: 2025-12-22</p>
+                <p>Style the HTML document using CSS with a focus on responsive design, flexbox, and grid layouts.</p>
+                <a href="details.html?id=asg_2">View Details & Discussion</a>
+            </article>
 
-        <!-- End of assignment list section. -->
+            <!-- Assignment 3: -->
+            <article>
+                <h2>Assignment 3: JavaScript Interactivity</h2>
+                <p>Due: 2025-12-29</p>
+                <p>Add interactive features using JavaScript including event handling, DOM manipulation, and form validation.</p>
+                <a href="details.html?id=asg_3">View Details & Discussion</a>
+            </article>
+
+        </section>
+    </main>
     <!-- End of main. -->
 
+    <!-- TODO: Link to this file using: <script src="list.js" defer></script> -->
+    <script src="list.js" defer></script>
 </body>
 </html>

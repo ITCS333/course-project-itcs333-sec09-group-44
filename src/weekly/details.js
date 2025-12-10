@@ -35,11 +35,7 @@ const newCommentText = document.querySelector("#new-comment-text");
 // --- Functions ---
 
 /**
- * TODO: Implement the getWeekIdFromURL function.
- * It should:
- * 1. Get the query string from `window.location.search`.
- * 2. Use the `URLSearchParams` object to get the value of the 'id' parameter.
- * 3. Return the id.
+ * Get the week ID from the URL query parameters
  */
 function getWeekIdFromURL() {
   let params = new URLSearchParams(window.location.search);
@@ -47,38 +43,29 @@ function getWeekIdFromURL() {
 }
 
 /**
- * TODO: Implement the renderWeekDetails function.
- * It takes one week object.
- * It should:
- * 1. Set the `textContent` of `weekTitle` to the week's title.
- * 2. Set the `textContent` of `weekStartDate` to "Starts on: " + week's startDate.
- * 3. Set the `textContent` of `weekDescription`.
- * 4. Clear `weekLinksList` and then create and append `<li><a href="...">...</a></li>`
- * for each link in the week's 'links' array. The link's `href` and `textContent`
- * should both be the link URL.
+ * Render the week details on the page
  */
 function renderWeekDetails(week) {
   weekTitle.textContent = week.title;
   weekStartDate.textContent = "Starts on: " + week.startDate;
   weekDescription.textContent = week.description;
   weekLinksList.innerHTML = "";
-  week.links.forEach(link => {
+  
+  // Handle links array (could be empty or undefined)
+  const links = week.links || [];
+  links.forEach(link => {
     const li = document.createElement("li");
     const a = document.createElement("a");
-
     a.href = link;
     a.textContent = link;
-
+    a.target = "_blank";
     li.appendChild(a);
     weekLinksList.appendChild(li);
-});
-}                  
+  });
+}
 
 /**
- * TODO: Implement the createCommentArticle function.
- * It takes one comment object {author, text}.
- * It should return an <article> element matching the structure in `details.html`.
- * (e.g., an <article> containing a <p> and a <footer>).
+ * Create a comment article element
  */
 function createCommentArticle(comment) {
   const article = document.createElement("article");
@@ -95,34 +82,18 @@ function createCommentArticle(comment) {
 }
 
 /**
- * TODO: Implement the renderComments function.
- * It should:
- * 1. Clear the `commentList`.
- * 2. Loop through the global `currentComments` array.
- * 3. For each comment, call `createCommentArticle()`, and
- * append the resulting <article> to `commentList`.
+ * Render all comments on the page
  */
 function renderComments() {
   commentList.innerHTML = "";
-
   currentComments.forEach(comment => {
-  const art = createCommentArticle(comment);
-  commentList.appendChild(art);
+    const art = createCommentArticle(comment);
+    commentList.appendChild(art);
   });
 }
 
 /**
- * TODO: Implement the handleAddComment function.
- * This is the event handler for the `commentForm` 'submit' event.
- * It should:
- * 1. Prevent the form's default submission.
- * 2. Get the text from `newCommentText.value`.
- * 3. If the text is empty, return.
- * 4. Create a new comment object: { author: 'Student', text: commentText }
- * (For this exercise, 'Student' is a fine hardcoded author).
- * 5. Add the new comment to the global `currentComments` array (in-memory only).
- * 6. Call `renderComments()` to refresh the list.
- * 7. Clear the `newCommentText` textarea.
+ * Handle adding a new comment
  */
 async function handleAddComment(event) {
   event.preventDefault();
@@ -145,60 +116,46 @@ async function handleAddComment(event) {
     });
 
     if (!resp.ok) {
-      // Try to parse error body for debugging
       let errText = await resp.text();
       console.error("Failed to post comment:", resp.status, errText);
+      alert("Failed to add comment. Please try again.");
       return;
     }
 
     const data = await resp.json();
 
-    // If API returned success, re-load comments for this week from the API and render
     if (data && data.success) {
-      // Re-fetch the comments for this week to ensure we display the authoritative list
+      // Re-fetch comments to show the new one
       await fetchComments();
       newCommentText.value = "";
-      // Ensure the server-persisted JSON is visible (some setups need a short delay)
-      setTimeout(() => location.reload(), 400);
+      console.log("Comment added successfully!");
     } else {
       console.error("Unexpected API response when posting comment:", data);
+      alert("Error adding comment.");
     }
 
   } catch (err) {
     console.error("Error posting comment:", err);
+    alert("Connection error. Please try again.");
   }
 }
 
 /**
- * TODO: Implement an `initializePage` function.
- * This function needs to be 'async'.
- * It should:
- * 1. Get the `currentWeekId` by calling `getWeekIdFromURL()`.
- * 2. If no ID is found, set `weekTitle.textContent = "Week not found."` and stop.
- * 3. `fetch` both 'weeks.json' and 'week-comments.json' (you can use `Promise.all`).
- * 4. Parse both JSON responses.
- * 5. Find the correct week from the weeks array using the `currentWeekId`.
- * 6. Get the correct comments array from the comments object using the `currentWeekId`.
- * Store this in the global `currentComments` variable. (If no comments exist, use an empty array).
- * 7. If the week is found:
- * - Call `renderWeekDetails()` with the week object.
- * - Call `renderComments()` to show the initial comments.
- * - Add the 'submit' event listener to `commentForm` (calls `handleAddComment`).
- * 8. If the week is not found, display an error in `weekTitle`.
+ * Initialize the page - load week details and comments
  */
 async function initializePage() {
   currentWeekId = getWeekIdFromURL();
 
-  // If no ID in the URL, try to pick the first week as a sensible default so the page still works
+  // If no ID in URL, try to get the first week as default
   if (!currentWeekId) {
     console.warn('No week id in URL; attempting to use the first week as default');
     try {
-      const wres = await fetch('api/weeks.json');
+      const wres = await fetch('api/index.php?resource=weeks', { cache: 'no-store' });
       if (wres.ok) {
         const wdata = await wres.json();
         if (Array.isArray(wdata) && wdata.length > 0) {
           currentWeekId = wdata[0].id;
-          // Update URL so users can share/bookmark this week view (but don't reload)
+          // Update URL
           const params = new URLSearchParams(window.location.search);
           params.set('id', currentWeekId);
           const newUrl = window.location.pathname + '?' + params.toString();
@@ -216,44 +173,55 @@ async function initializePage() {
   }
 
   try {
-    // Fetch week details from weeks.json and comments from the API endpoint for this week
-    const weeksRes = await fetch("api/weeks.json", { cache: 'no-store' });
-    if (!weeksRes.ok) throw new Error(`Failed to fetch weeks: ${weeksRes.status}`);
-    const weeksData = await weeksRes.json();
+    // Fetch week details from API (not from JSON file)
+    const weeksRes = await fetch(`api/index.php?resource=weeks&week_id=${currentWeekId}`, { cache: 'no-store' });
+    
+    if (!weeksRes.ok) {
+      throw new Error(`Failed to fetch week: ${weeksRes.status}`);
+    }
+    
+    const week = await weeksRes.json();
 
-    // Find the requested week by id (weeks.json uses an array of week objects)
-    const week = Array.isArray(weeksData) ? weeksData.find(w => w.id === currentWeekId) : null;
-    if (!week) {
+    // Check if week exists
+    if (!week || !week.id) {
       weekTitle.textContent = "Week not found.";
       return;
     }
 
+    // Render week details
     renderWeekDetails(week);
 
-    // Load comments for this week from the API (index.php?resource=comments&week_id=...)
+    // Load comments for this week
     await fetchComments();
 
-    if (commentForm) commentForm.addEventListener("submit", handleAddComment);
+    // Add event listener for comment form
+    if (commentForm) {
+      commentForm.addEventListener("submit", handleAddComment);
+    }
 
   } catch (error) {
+    console.error('Error loading page:', error);
     weekTitle.textContent = "Error loading data.";
   }
-
 }
 
-
-// Fetch comments for the current week from the API and render them
+/**
+ * Fetch comments for the current week from the API
+ */
 async function fetchComments() {
   if (!currentWeekId) return;
+  
   try {
-    // Read comments directly from the static JSON file
-    const resp = await fetch('api/comments.json', { cache: 'no-store' });
-    if (!resp.ok) throw new Error(`Failed to fetch comments.json: ${resp.status}`);
+    const resp = await fetch(`api/index.php?resource=comments&week_id=${encodeURIComponent(currentWeekId)}`, { cache: 'no-store' });
+    
+    if (!resp.ok) {
+      throw new Error(`Failed to fetch comments: ${resp.status}`);
+    }
+    
     const commentsData = await resp.json();
-    // comments.json is an object keyed by week id
-    currentComments = (commentsData && commentsData[currentWeekId]) ? commentsData[currentWeekId] : [];
-
+    currentComments = Array.isArray(commentsData) ? commentsData : [];
     renderComments();
+    
   } catch (err) {
     console.error('Error loading comments:', err);
     currentComments = [];

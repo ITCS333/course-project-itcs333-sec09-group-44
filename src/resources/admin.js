@@ -13,7 +13,10 @@
 
 // --- Global Data Store ---
 // This will hold the resources loaded from the JSON file.
-let resources = [];
+let resources = [
+  { id: "res_1", title: "Chapter 1 Notes", description: "Summary of the first chapter.", link: "https://example.com/notes/chapter1.pdf" },
+  { id: "res_2", title: "External Tutorial", description: "Link to an online resource.", link: "https://example.com/tutorial" }
+];
 
 // --- Element Selections ---
 // TODO: Select the resource form ('#resource-form').
@@ -35,7 +38,6 @@ const resourcesTableBody = document.querySelector("#resources-tbody");
  * - A "Delete" button with class "delete-btn" and `data-id="${id}"`.
  */
 function createResourceRow(resource) {
-  // ... your implementation here ...
   const tr = document.createElement("tr");
 
   const titleTd = document.createElement("td");
@@ -51,12 +53,17 @@ function createResourceRow(resource) {
   editBtn.classList.add("edit-btn");
   editBtn.dataset.id = resource.id;
 
+  const viewBtn = document.createElement("button");
+  viewBtn.textContent = "View";
+  viewBtn.onclick = () => window.open(`details.html?id=${resource.id}`, "_blank");
+
   const deleteBtn = document.createElement("button");
   deleteBtn.textContent = "Delete";
   deleteBtn.classList.add("delete-btn");
   deleteBtn.dataset.id = resource.id;
 
   actionsTd.appendChild(editBtn);
+  actionsTd.appendChild(viewBtn);
   actionsTd.appendChild(deleteBtn);
 
   tr.appendChild(titleTd);
@@ -75,7 +82,6 @@ function createResourceRow(resource) {
  * append the resulting <tr> to `resourcesTableBody`.
  */
 function renderTable() {
-  // ... your implementation here ...
   resourcesTableBody.innerHTML = "";
 
   resources.forEach((res) => {
@@ -95,22 +101,46 @@ function renderTable() {
  * 5. Call `renderTable()` to refresh the list.
  * 6. Reset the form.
  */
-function handleAddResource(event) {
-  // ... your implementation here ...
+async function handleAddResource(event) {
   event.preventDefault();
 
-  const title = document.querySelector("#resource-title").value;
-  const description = document.querySelector("#resource-description").value;
-  const link = document.querySelector("#resource-link").value;
+  const title = document.querySelector("#resource-title").value.trim();
+  const description = document.querySelector("#resource-description").value.trim();
+  const link = document.querySelector("#resource-link").value.trim();
 
-  const newResource = {
-    id: `res_${Date.now()}`,
-    title,
-    description,
-    link
-  };
+  const editId = resourceForm.dataset.editId;
+  if (editId) {
+    const idx = resources.findIndex(r => r.id === editId);
+    if (idx !== -1) {
+      resources[idx] = { ...resources[idx], title, description, link };
+    }
+    delete resourceForm.dataset.editId;
+  } else {
+    const newResource = {
+      id: `res_${Date.now()}`,
+      title,
+      description,
+      link
+    };
+    resources.push(newResource);
 
-  resources.push(newResource);
+    // <<< NEW: create empty comments entry for this resource >>>
+    try {
+      // read current comments file
+      const readRes  = await fetch("comments.json");
+      const commentsObj = await readRes.json();
+      commentsObj[newResource.id] = [];          // add empty array for new resource
+
+      // write it back (pseudo-PUT: whole file replaced)
+      await fetch("api/comments.php", {          // **see small PHP helper below**
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(commentsObj)
+      });
+    } catch (e) {
+      console.warn("Could not initialise empty comments for new resource", e);
+    }
+  }
 
   renderTable();
   resourceForm.reset();
@@ -127,11 +157,23 @@ function handleAddResource(event) {
  * 4. Call `renderTable()` to refresh the list.
  */
 function handleTableClick(event) {
-  // ... your implementation here ...
-  if (event.target.classList.contains("delete-btn")) {
-    const id = event.target.dataset.id;
+  const { target } = event;
+
+  if (target.classList.contains("delete-btn")) {
+    const id = target.dataset.id;
     resources = resources.filter((res) => res.id !== id);
     renderTable();
+  }
+
+  if (target.classList.contains("edit-btn")) {
+    const id = target.dataset.id;
+    const res = resources.find(r => r.id === id);
+    if (res) {
+      document.querySelector("#resource-title").value = res.title;
+      document.querySelector("#resource-description").value = res.description;
+      document.querySelector("#resource-link").value = res.link;
+      resourceForm.dataset.editId = id;
+    }
   }
 }
 
@@ -146,12 +188,14 @@ function handleTableClick(event) {
  * 5. Add the 'click' event listener to `resourcesTableBody` (calls `handleTableClick`).
  */
 async function loadAndInitialize() {
-  // ... your implementation here ...
-  const response = await fetch("resources.json");
-  resources = await response.json();
-
+  try {
+    const response = await fetch("resources.json");
+    const data = await response.json();
+    resources = data;
+  } catch (err) {
+    console.warn("Could not load resources.json – using built-in dummy data");
+  }
   renderTable();
-
   resourceForm.addEventListener("submit", handleAddResource);
   resourcesTableBody.addEventListener("click", handleTableClick);
 }
