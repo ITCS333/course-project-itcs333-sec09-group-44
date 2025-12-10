@@ -14,7 +14,7 @@ Welcome to the **Course Page** project! This repository contains the source code
 | 2 – Course Resources | Hussain Yasser Ali | 202304049 | ✅ **Completed** |
 | 3 – Weekly Breakdown | Khalid Abdulla | 202306240 | ✅ **Completed** |
 | 4 – Assignments | Isa Nader Omran | 202303812 | ✅ **Completed** |
-| 5 – Discussion Boards | *(Student 5 Name)* | *(Student 5 ID)* | ✅ **Completed** |
+| 5 – Discussion Boards | * - * | * - * |  **Cancelled** |
 
 ---
 
