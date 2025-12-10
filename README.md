@@ -14,7 +14,7 @@ Welcome to the **Course Page** project! This repository contains the source code
 | 2 – Course Resources | Hussain Yasser Ali | 202304049 | ✅ **Completed** |
 | 3 – Weekly Breakdown | Khalid Abdulla | 202306240 | ✅ **Completed** |
 | 4 – Assignments | Isa Nader Omran | 202303812 | ✅ **Completed** |
-| 5 – Discussion Boards | * - * | * - * |  **Cancelled** |
+| 5 – Discussion Boards |  -  |  -  |  **Cancelled** |
 
 ---
 
@@ -42,6 +42,7 @@ Welcome to the **Course Page** project! This repository contains the source code
 
 -----
 
+```
 ## 📁 Project Structure
 
 course-project-itcs333-sec09-group-44/
@@ -150,12 +151,5 @@ course-project-itcs333-sec09-group-44/
   * Lists all course assignments with due dates.
   * Admin interface to create new assignments.
   * Detail views for specific assignment instructions.
-
-### Task 5: Discussion Boards
-
-  * General forum for course-related topics.
-  * Allows students and teachers to create topics and reply to threads.
-
------
 
 © 2025 University of Bahrain – ITCS333
