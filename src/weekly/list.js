@@ -1,14 +1,6 @@
 /*
   Requirement: Populate the "Weekly Course Breakdown" list page.
-
-  Instructions:
-  1. Link this file to `list.html` using:
-     <script src="list.js" defer></script>
-
-  2. In `list.html`, add an `id="week-list-section"` to the
-     <section> element that will contain the weekly articles.
-
-  3. Implement the TODOs below.
+  This version loads data ONLY from the database via API
 */
 
 // --- Element Selections ---
@@ -17,15 +9,11 @@ let listSection = document.getElementById("week-list-section");
 // --- Functions ---
 
 /**
- * TODO: Implement the createWeekArticle function.
- * It takes one week object {id, title, startDate, description}.
- * It should return an <article> element matching the structure in `list.html`.
- * - The "View Details & Discussion" link's `href` MUST be set to `details.html?id=${id}`.
- * (This is how the detail page will know which week to load).
+ * Create a week article element
  */
 function createWeekArticle(week) {
   let { id, title, startDate, description } = week;
-  
+
   const article = document.createElement("article");
   const h2 = document.createElement("h2");
   const dateP = document.createElement("p");
@@ -35,7 +23,6 @@ function createWeekArticle(week) {
   h2.textContent = title;
   dateP.textContent = `Starts on: ${startDate}`;
   descP.textContent = description;
-
   link.href = `details.html?id=${id}`;
   link.textContent = "View Details & Discussion";
 
@@ -48,49 +35,73 @@ function createWeekArticle(week) {
 }
 
 /**
- * TODO: Implement the loadWeeks function.
- * This function needs to be 'async'.
- * It should:
- * 1. Use `fetch()` to get data from 'weeks.json'.
- * 2. Parse the JSON response into an array.
- * 3. Clear any existing content from `listSection`.
- * 4. Loop through the weeks array. For each week:
- * - Call `createWeekArticle()`.
- * - Append the returned <article> element to `listSection`.
+ * Load weeks from DATABASE ONLY via API
  */
 async function loadWeeks() {
+  console.log("Loading weeks from database...");
+
   try {
-    // Prefer the API endpoint so list reflects admin changes
-    let response = await fetch('api/index.php?resource=weeks', { cache: 'no-store' });
+    // Load ONLY from API (database)
+    const response = await fetch('api/index.php?resource=weeks', { 
+      cache: 'no-store',
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+
+    console.log("API Response status:", response.status);
+
     if (!response.ok) {
-      // fallback to static JSON
-      response = await fetch('api/weeks.json', { cache: 'no-store' });
-      if (!response.ok) throw new Error(`Failed to fetch weeks: ${response.status}`);
-      const weeks = await response.json();
-      listSection.innerHTML = '';
-      weeks.forEach(week => listSection.appendChild(createWeekArticle(week)));
-      return;
+      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
     }
 
     const body = await response.json();
+    console.log("API Response body:", body);
+
+    // Handle different response formats
     const weeks = Array.isArray(body) ? body : (body.data || []);
+
+    console.log("Parsed weeks:", weeks);
+    console.log("Number of weeks:", weeks.length);
+
+    // Clear existing content
     listSection.innerHTML = '';
-    weeks.forEach(week => listSection.appendChild(createWeekArticle(week)));
+
+    // Check if we have weeks
+    if (weeks.length === 0) {
+      listSection.innerHTML = '<p style="text-align:center; color:#666; padding:40px;">No weeks available yet. Add some weeks from the Admin Panel!</p>';
+      return;
+    }
+
+    // Add each week to the page
+    weeks.forEach((week, index) => {
+      console.log(`Adding week ${index + 1}:`, week);
+      listSection.appendChild(createWeekArticle(week));
+    });
+
+    console.log("Successfully loaded", weeks.length, "weeks from database");
+
   } catch (error) {
-    console.error('Failed to load weeks:', error);
-    listSection.innerHTML = "<p style='color:red;'>Error loading weeks data.</p>";
+    console.error(' Failed to load weeks:', error);
+    listSection.innerHTML = `
+      <div style="background:#ffebee; color:#c62828; padding:20px; border-radius:8px; text-align:center;">
+        <h3> Error Loading Weeks</h3>
+        <p>${error.message}</p>
+        <p style="font-size:0.9em; margin-top:10px;">Make sure Apache and MySQL are running in XAMPP.</p>
+      </div>
+    `;
   }
 }
 
 // --- Initial Page Load ---
-// Call the function to populate the page.
+console.log("Page loaded, initializing...");
 loadWeeks();
 
-// Listen for changes from admin page (other tab/window) using localStorage event
+// Listen for changes from admin page (other tab/window)
 window.addEventListener('storage', (e) => {
   if (!e.key) return;
   if (e.key === 'weeks_updated') {
-    // reload weeks when admin notifies a change
+    console.log(" Weeks updated in another tab, reloading...");
     loadWeeks();
   }
 });
