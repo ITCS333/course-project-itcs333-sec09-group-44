@@ -18,6 +18,12 @@ Welcome to the **Course Page** project! This repository contains the source code
 
 ---
 
+## 🌐 Live Application
+
+**Hosted Link (Replit):** https://3e0c3a8c-f217-4bec-a0a0-69014c28e22e-00-6onf44fk9ssq.pike.replit.dev/
+
+---
+
 ## ⚙️ How to Run Locally (XAMPP)
 
 1. **Clone/Copy the Project**
