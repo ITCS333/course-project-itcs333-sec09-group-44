@@ -1,101 +1,182 @@
-<!--
-  Requirement: Create the Admin View for the Weekly Breakdown
-
-  Instructions:
-  Fill in the HTML elements as described in the comments.
-  This page allows the teacher (admin) to perform full CRUD operations on the weekly course content.
--->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Manage Weekly Breakdown</title>
-
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        fieldset {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        legend {
+            font-weight: bold;
+            color: #667eea;
+            padding: 0 10px;
+        }
+        label {
+            display: block;
+            margin: 15px 0 5px;
+            font-weight: 600;
+            color: #555;
+        }
+        input[type="text"],
+        input[type="date"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border 0.3s;
+        }
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        textarea {
+            resize: vertical;
+            font-family: inherit;
+        }
+        button {
+            padding: 12px 30px;
+            margin-top: 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        #add-week {
+            background: #667eea;
+            color: white;
+        }
+        #add-week:hover {
+            background: #5568d3;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        tr:hover {
+            background: #f9f9f9;
+        }
+        .edit-btn {
+            background: #4CAF50;
+            color: white;
+            margin-right: 5px;
+        }
+        .edit-btn:hover {
+            background: #45a049;
+        }
+        .delete-btn {
+            background: #f44336;
+            color: white;
+        }
+        .delete-btn:hover {
+            background: #da190b;
+        }
+    </style>
     <script defer src="admin.js"></script>
 </head>
 <body>
-
-  <header>
-    <h1>Manage Weekly Breakdown</h1>
-  </header>
-
+    <header>
+        <h1>⚙️ Manage Weekly Breakdown</h1>
+    </header>
+    
     <main>
-
         <!-- Section 1: Add/Edit Week Form -->
         <section>
             <h2>Add a New Week</h2>
-
             <form id="week-form" action="#" method="post">
                 <fieldset>
                     <legend>Weekly Details</legend>
-
                     
-                         <label for="week-title">Week Title:</label>
-                         <input id="week-title" type="text" placeholder="Week 1: Introduction to HTML" required>
-                         
-
-                   
-                         <label for="week-start-date">Start Date:</label>
-                         <input id="week-start-date" type="date" required>
-
-                  
-                         <label for="week-description">Description & Notes:</label>
-                         <textarea id="week-description" rows="5" placeholder="Overview, objectives, topics covered..."></textarea>
+                    <label for="week-title">Week Title: *</label>
+                    <input id="week-title" type="text" placeholder="Week 1: Introduction to HTML" required>
                     
+                    <label for="week-start-date">Start Date: *</label>
+                    <input id="week-start-date" type="date" required>
                     
-                         <lable for="week-links">Exercises / Resources (one link per line)</lable>
-                         <textarea id="week-links" rows="3" placeholder="https://example.com/resource1"></textarea>
-
-                   
-                         <button id="add-week" type="submit">Add Week</button>
+                    <label for="week-description">Description & Notes:</label>
+                    <textarea id="week-description" rows="5" placeholder="Overview, objectives, topics covered..."></textarea>
+                    
+                    <label for="week-links">Exercises / Resources (one link per line):</label>
+                    <textarea id="week-links" rows="3" placeholder="https://example.com/resource1
+https://example.com/resource2"></textarea>
+                    
+                    <button id="add-week" type="submit">Add Week</button>
                 </fieldset>
-           </form>
+            </form>
         </section>
-
-
+        
         <!-- Section 2: Existing Weekly Entries -->
         <section>
-           <h2>Current Weekly Breakdown</h2>
-
+            <h2>Current Weekly Breakdown</h2>
             <table id="weeks-table">
                 <thead>
-                  <tr>
-                    <th>Week Title</th>
-                    <th>Description</th>
-                    <th>Actions</th>
-                   </tr> 
-                  </thead>
+                    <tr>
+                        <th>Week Title</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr> 
+                </thead>
                 
                 <tbody id="weeks-tbody">
-                    <!-- TODO: Add 1-2 rows of dummy data to see the structure. -->
-                    <!-- Example Row 1: -->
-                    <tr>
-                        <td>Week 1: Intro to HTML</td>
-                        <td>Basic tags, structure, elements.</td>
-                        
-                        <td>
-                            <button class="edit-btn">Edit</button>
-                            <button class="delete-btn">Delete</button>
-                        </td>
-                    </tr>
-                    <!-- Dummy Row 2 -->
-                    <tr>
-                      <td>Week 2: CSS Basics</td>
-                      <td>Selectors, properties, styling text and layout.</td>
-                      <td>
-                      <button class="edit-btn">Edit</button>
-                      <button class="delete-btn">Delete</button>
-                      </td>
-                    </tr> 
+                    <!-- Data will be loaded from database via admin.js -->
                 </tbody>
             </table>
         </section>
-
     </main>
 </body>
 </html>
-
