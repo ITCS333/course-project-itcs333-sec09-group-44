@@ -1,90 +1,134 @@
 let resources = [];
 
-const resourceForm = document.querySelector("#resource-form");
-const resourcesTableBody = document.querySelector("#resources-tbody");
+const resourceForm = document.querySelector('#resource-form');
+const resourcesTableBody = document.querySelector('#resources-tbody');
 
 function createResourceRow(resource) {
-  const tr = document.createElement("tr");
+    const tr = document.createElement('tr');
 
-  tr.innerHTML = `
-    <td>${resource.title}</td>
-    <td>${resource.description}</td>
-    <td>
-      <a href="${resource.link}" target="_blank">${resource.link}</a>
-    </td>
-    <td>
-      <button class="edit-btn" data-id="${resource.id}">Edit</button>
-      <button class="delete-btn" data-id="${resource.id}">Delete</button>
-    </td>
-  `;
+    const titleTd = document.createElement('td');
+    titleTd.textContent = resource.title;
+    tr.appendChild(titleTd);
 
-  return tr;
+    const descTd = document.createElement('td');
+    descTd.textContent = resource.description;
+    tr.appendChild(descTd);
+
+    const actionsTd = document.createElement('td');
+
+    const editBtn = document.createElement('button');
+    editBtn.textContent = 'Modify';
+    editBtn.classList.add('edit-btn');
+    editBtn.setAttribute('data-id', resource.id);
+    actionsTd.appendChild(editBtn);
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.textContent = 'Remove';
+    deleteBtn.classList.add('delete-btn');
+    deleteBtn.setAttribute('data-id', resource.id);
+    actionsTd.appendChild(deleteBtn);
+
+    tr.appendChild(actionsTd);
+    return tr;
 }
 
 function renderTable() {
-  resourcesTableBody.innerHTML = "";
-  resources.forEach(r => resourcesTableBody.appendChild(createResourceRow(r)));
+    resourcesTableBody.innerHTML = '';
+    resources.forEach(resource => {
+        const tr = createResourceRow(resource);
+        resourcesTableBody.appendChild(tr);
+    });
 }
 
-async function handleAddResource(e) {
-  e.preventDefault();
+async function handleAddResource(event) {
+    event.preventDefault();
 
-  const title = document.querySelector("#resource-title").value.trim();
-  const description = document.querySelector("#resource-description").value.trim();
-  const link = document.querySelector("#resource-link").value.trim();
+    const title = document.querySelector('#resource-title').value.trim();
+    const description = document.querySelector('#resource-description').value.trim();
+    const link = document.querySelector('#resource-link').value.trim();
 
-  if (!title || !link) return alert("Title and link required");
+    if (!title || !link) return;
 
-  await fetch("api/index.php", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ title, description, link })
-  });
+    try {
+        const response = await fetch('api/index.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ title, description, link })
+        });
 
-  loadAndInitialize();
-  resourceForm.reset();
+        const json = await response.json();
+
+        if (!json.success) {
+            alert('Unable to create resource: ' + (json.message || 'Operation failed'));
+            return;
+        }
+
+        await loadAndInitialize();
+        resourceForm.reset();
+        alert('Material created successfully!');
+    } catch (error) {
+        console.error('Error adding resource:', error);
+        alert('Could not add material. Try again later.');
+    }
 }
 
 async function handleTableClick(event) {
-  const id = event.target.dataset.id;
-  if (!id) return;
+    const target = event.target;
 
-  // DELETE
-  if (event.target.classList.contains("delete-btn")) {
-    await fetch(`api/index.php?id=${id}`, { method: "DELETE" });
-    return loadAndInitialize();
-  }
+    if (target.classList.contains('delete-btn')) {
+        const id = target.getAttribute('data-id');
 
-  // EDIT
-  if (event.target.classList.contains("edit-btn")) {
-    const row = event.target.closest("tr");
+        if (!confirm('Remove this resource permanently?')) {
+            return;
+        }
 
-    const newTitle = prompt("New title:", row.children[0].textContent);
-    const newDesc = prompt("New description:", row.children[1].textContent);
-    const newLink = prompt("New link:", row.children[2].textContent);
+        try {
+            const response = await fetch(`api/index.php?id=${id}`, {
+                method: 'DELETE'
+            });
 
-    await fetch("api/index.php", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        id,
-        title: newTitle,
-        description: newDesc,
-        link: newLink
-      })
-    });
+            const json = await response.json();
 
-    loadAndInitialize();
-  }
+            if (!json.success) {
+                alert('Cannot remove resource: ' + (json.message || 'Operation failed'));
+                return;
+            }
+
+            await loadAndInitialize();
+            alert('Material removed successfully!');
+        } catch (error) {
+            console.error('Error deleting resource:', error);
+            alert('Unable to remove material. Try again.');
+        }
+    }
 }
 
 async function loadAndInitialize() {
-  const res = await fetch("api/index.php");
-  resources = (await res.json()).data;
-  renderTable();
-}
+    try {
+        const response = await fetch('api/index.php');
+        const json = await response.json();
 
-resourceForm.addEventListener("submit", handleAddResource);
-resourcesTableBody.addEventListener("click", handleTableClick);
+        if (!json.success) {
+            throw new Error(json.message || 'Could not fetch resources');
+        }
+
+        resources = json.data || [];
+        renderTable();
+
+        if (!resourceForm.dataset.listenerAdded) {
+            resourceForm.addEventListener('submit', handleAddResource);
+            resourceForm.dataset.listenerAdded = 'true';
+        }
+        if (!resourcesTableBody.dataset.listenerAdded) {
+            resourcesTableBody.addEventListener('click', handleTableClick);
+            resourcesTableBody.dataset.listenerAdded = 'true';
+        }
+    } catch (error) {
+        console.error('Error loading resources:', error);
+        alert('Cannot load materials. Refresh the page.');
+    }
+}
 
 loadAndInitialize();
