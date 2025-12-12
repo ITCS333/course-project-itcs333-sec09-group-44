@@ -1,71 +1,51 @@
-/*
-  Requirement: Populate the "Course Resources" list page.
+const listSection = document.querySelector('#resource-list-section');
 
-  Instructions:
-  1. Link this file to `list.html` using:
-     <script src="list.js" defer></script>
-
-  2. In `list.html`, add an `id="resource-list-section"` to the
-     <section> element that will contain the resource articles.
-*/
-
-// --- Element Selections ---
-const listSection = document.getElementById("resource-list-section");
-
-// --- Functions ---
-
-/**
- * Creates an <article> for one resource.
- * Structure:
- * <article>
- *   <h2>Title</h2>
- *   <p>Description</p>
- *   <a href="details.html?id=NUMBER">View Resource & Discussion</a>
- * </article>
- */
 function createResourceArticle(resource) {
-  const article = document.createElement("article");
+    const article = document.createElement('article');
 
-  const titleEl = document.createElement("h2");
-  titleEl.textContent = resource.title;
+    const titleEl = document.createElement('h3');
+    titleEl.textContent = resource.title;
+    article.appendChild(titleEl);
 
-  const descEl = document.createElement("p");
-  descEl.textContent = resource.description;
+    const descEl = document.createElement('p');
+    descEl.textContent = resource.description;
+    article.appendChild(descEl);
 
-  const linkEl = document.createElement("a");
-  linkEl.href = `details.html?id=${resource.id}`;
-  linkEl.textContent = "View Resource & Discussion";
+    const linkEl = document.createElement('a');
+    linkEl.textContent = 'View Details';
+    linkEl.href = `details.html?id=${resource.id}`;
+    linkEl.setAttribute('role', 'button');
+    article.appendChild(linkEl);
 
-  article.appendChild(titleEl);
-  article.appendChild(descEl);
-  article.appendChild(linkEl);
-
-  return article;
+    return article;
 }
 
-/**
- * Loads resources from the API and displays them.
- */
 async function loadResources() {
-  try {
-    const response = await fetch("api/index.php");
-    const data = await response.json();
-    const resources = data.data;
+    try {
+        const response = await fetch('api/index.php');
+        const json = await response.json();
 
-    // Clear previous content
-    listSection.innerHTML = "";
+        if (!json.success) {
+            throw new Error(json.message || 'Unable to retrieve materials');
+        }
 
-    // Build articles for each resource
-    resources.forEach(resource => {
-      const article = createResourceArticle(resource);
-      listSection.appendChild(article);
-    });
+        const resources = json.data || [];
 
-  } catch (err) {
-    console.error("Error loading resources:", err);
-    listSection.innerHTML = "<p>Error loading resources.</p>";
-  }
+        listSection.innerHTML = '';
+
+        if (resources.length === 0) {
+            listSection.innerHTML = '<p>No materials found.</p>';
+            return;
+        }
+
+        resources.forEach(resource => {
+            const article = createResourceArticle(resource);
+            listSection.appendChild(article);
+        });
+    } catch (error) {
+        console.error('Error loading resources:', error);
+        listSection.innerHTML = '<p>Cannot display materials at this time.</p>';
+    }
 }
 
-// --- Initial Page Load ---
 loadResources();
