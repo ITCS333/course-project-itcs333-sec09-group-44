@@ -17,9 +17,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once 'config.php';
-$requestBody = file_get_contents('php://input');
 
-// Get the resource from query string
+// Read and parse request body
+$requestBody = file_get_contents('php://input');
+$requestData = json_decode($requestBody, true);
+
+
+// Initialize database connection 
+$pdo = getDBConnection();
+
+
+// Database operations use PDO prepared statements
+// Example: $stmt = $pdo->prepare("SELECT * FROM weeks WHERE id = ?");
+// Example: $stmt->execute([$id]);
 $resource = $_GET['resource'] ?? '';
 
 // Route to appropriate handler
