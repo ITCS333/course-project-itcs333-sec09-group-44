@@ -3,6 +3,7 @@
  * Main API Router for Course Management System
  * Handles requests for weeks and comments resources
  */
+session_start();
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
