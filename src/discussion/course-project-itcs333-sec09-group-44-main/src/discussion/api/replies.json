@@ -1,0 +1,24 @@
+{
+  "topic_1": [
+    {
+      "id": "reply_1",
+      "text": "Have you tried using `justify-content: space-between` or `space-around`? These properties control how items are distributed along the main axis.",
+      "author": "Fatima",
+      "date": "2025-10-25"
+    },
+    {
+      "id": "reply_2",
+      "text": "Also check if your flex container has a defined width. If it doesn't, the items might not have space to distribute.",
+      "author": "Ahmed",
+      "date": "2025-10-26"
+    }
+  ],
+  "topic_2": [
+    {
+      "id": "reply_3",
+      "text": "The `fetch` API doesn't reject the promise on HTTP error status codes like 404. You need to check the `.ok` property or `.status` code manually.",
+      "author": "Noor",
+      "date": "2025-10-27"
+    }
+  ]
+}
