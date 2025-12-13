@@ -46,18 +46,16 @@
                 <!-- End of comment article. -->
 
             <!-- Subsection 2.2: Add a Comment Form -->
-            <!-- TODO: Create a 'form' for users to post new comments. Action can be '#'. -->
-                <!-- TODO: Use a 'fieldset' to group the controls. -->
-                    <!-- TODO: Add a 'legend', e.g., "Ask a Question". -->
+            <form id="comment-form" action="#">
+                <fieldset>
+                    <legend>Ask a Question</legend>
 
-                    <!-- TODO: Add a 'label' and 'textarea' for the comment box.
-                         - label 'for': "new-comment"
-                         - textarea 'id': "new-comment", required -->
+                    <label for="new-comment-text">Your Comment:</label>
+                    <textarea id="new-comment-text" required></textarea>
                     
-                    <!-- TODO: Add a 'button' to submit the comment.
-                         - type="submit", Text: "Post Comment" -->
-                <!-- End of fieldset. -->
-            <!-- End of form. -->
+                    <button type="submit">Post Comment</button>
+                </fieldset>
+            </form>
         <!-- End of discussion section. -->
 
     <!-- End of main. -->
