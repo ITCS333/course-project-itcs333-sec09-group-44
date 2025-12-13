@@ -56,10 +56,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-require_once __DIR__ . '/../../config/Database.php';
+// Link to the shared DB connection
+require_once __DIR__ . '/../../common/db.php';
 
-$database = new Database();
-$db = $database->getConnection();
+try {
+    $db = getDBConnection();
+} catch (PDOException $e) {
+    http_response_code(500);
+    echo json_encode(["success" => false, "message" => "Database Connection Failed"]);
+    exit;
+}
 
 $method = $_SERVER['REQUEST_METHOD'];
 $data = json_decode(file_get_contents("php://input"), true);
@@ -367,4 +373,3 @@ function sendResponse($responseData, $httpCode = 200) {
 }
 
 ?>
-
