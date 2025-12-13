@@ -17,6 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once 'config.php';
+$requestBody = file_get_contents('php://input');
 
 // Get the resource from query string
 $resource = $_GET['resource'] ?? '';
