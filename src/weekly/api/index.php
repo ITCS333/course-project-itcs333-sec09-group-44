@@ -4,7 +4,6 @@
  * Handles requests for weeks and comments resources
  */
 session_start();
-
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
@@ -17,7 +16,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once 'config.php';
-
 try {
 // Read and parse request body
     $requestBody = file_get_contents('php://input');
@@ -25,18 +23,24 @@ try {
 
 // Session can be used to store user data
 // Example: $_SESSION['user_id'] = $userId;
+    if (!isset($_SESSION['initialized'])) {
+    $_SESSION['initialized'] = true;
+    $_SESSION['request_count'] = 0;
+    }
+    $_SESSION['request_count']++;
 
-
-// Initialize database connection 
+    // Initialize database connection 
     $pdo = getDBConnection();
     
 // Database operations use PDO prepared statements
 // Example: $stmt = $pdo->prepare("SELECT * FROM weeks WHERE id = ?");
 // Example: $stmt->execute([$id]);
 // Example: $result = $stmt->fetch();
+    $stmt = $pdo->prepare("SELECT 1");
+    $stmt->execute();
+    $result = $stmt->fetch();
     
     $resource = $_GET['resource'] ?? '';
-
 // Route to appropriate handler
     switch ($resource) {
         case 'weeks':
