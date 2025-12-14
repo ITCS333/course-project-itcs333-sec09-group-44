@@ -20,39 +20,39 @@ require_once 'config.php';
 
 try {
 // Read and parse request body
-$requestBody = file_get_contents('php://input');
-$requestData = json_decode($requestBody, true);
+    $requestBody = file_get_contents('php://input');
+    $requestData = json_decode($requestBody, true);
 
 // Session can be used to store user data
 // Example: $_SESSION['user_id'] = $userId;
 
 
 // Initialize database connection 
-$pdo = getDBConnection();
-
-
+    $pdo = getDBConnection();
+    
 // Database operations use PDO prepared statements
 // Example: $stmt = $pdo->prepare("SELECT * FROM weeks WHERE id = ?");
 // Example: $stmt->execute([$id]);
 // Example: $result = $stmt->fetch();
-$resource = $_GET['resource'] ?? '';
+    
+    $resource = $_GET['resource'] ?? '';
 
 // Route to appropriate handler
-switch ($resource) {
-    case 'weeks':
-        require_once 'weeks.php';
-        handleWeeksRequest();
-        break;
+    switch ($resource) {
+        case 'weeks':
+            require_once 'weeks.php';
+            handleWeeksRequest();
+            break;
     
-    case 'comments':
-        require_once 'comments.php';
-        handleCommentsRequest();
-        break;
+        case 'comments':
+            require_once 'comments.php';
+            handleCommentsRequest();
+            break;
     
-    default:
-        http_response_code(400);
-        echo json_encode(['error' => 'Invalid resource. Use ?resource=weeks or ?resource=comments']);
-        break;
+        default:
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid resource. Use ?resource=weeks or ?resource=comments']);
+            break;
 }
 } catch (PDOException $e) {
     error_log('Database Error: ' . $e->getMessage());
