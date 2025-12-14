@@ -269,3 +269,41 @@ if (searchInput) searchInput.addEventListener("input", handleSearch);
 
 // Start
 loadStudentsAndInitialize();
+
+// ==========================================
+// FIX FOR TASK 1507: handleSort Function
+// ==========================================
+function handleSort(event) {
+    const header = event.target.closest('th');
+    if (!header) return;
+
+    const tableBody = document.querySelector("#student-table tbody");
+    const rows = Array.from(tableBody.querySelectorAll('tr'));
+    
+    // Toggle sort order
+    const isAscending = header.dataset.order !== 'asc';
+    header.dataset.order = isAscending ? 'asc' : 'desc';
+
+    // Get column index
+    const columnIndex = Array.from(header.parentNode.children).indexOf(header);
+
+    // Sort rows
+    rows.sort((rowA, rowB) => {
+        const cellA = rowA.children[columnIndex].innerText.trim().toLowerCase();
+        const cellB = rowB.children[columnIndex].innerText.trim().toLowerCase();
+
+        if (cellA < cellB) return isAscending ? -1 : 1;
+        if (cellA > cellB) return isAscending ? 1 : -1;
+        return 0;
+    });
+
+    // Re-render
+    tableBody.innerHTML = '';
+    rows.forEach(row => tableBody.appendChild(row));
+}
+
+// Attach the sort listener to headers
+document.querySelectorAll('th').forEach(th => {
+    th.addEventListener('click', handleSort);
+    th.style.cursor = "pointer";
+});
