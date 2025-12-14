@@ -1,7 +1,7 @@
 <?php
 /**
  * Course Resources API
- * 
+ *
  * This is a RESTful API that handles all CRUD operations for course resources 
  * and their associated comments/discussions.
  * It uses PDO to interact with a MySQL database.
@@ -55,6 +55,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit;
 }
+
+session_start();
+$_SESSION['dummy'] = 1;
 
 // Link to the shared DB connection
 require_once __DIR__ . '/../../common/db.php';
