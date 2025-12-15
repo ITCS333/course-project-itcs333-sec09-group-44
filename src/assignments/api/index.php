@@ -35,6 +35,17 @@
  * Response Format: JSON
  */
 
+// Sessions ensure per-user state; start before sending headers.
+session_start();
+
+// Initialize a basic session payload when missing so $_SESSION is always available for user data.
+if (!isset($_SESSION['user_context'])) {
+    $_SESSION['user_context'] = [
+        'role' => 'guest',
+        'initialized_at' => time(),
+    ];
+}
+
 // ============================================================================
 // HEADERS AND CORS CONFIGURATION
 // ============================================================================
