@@ -1,69 +1,38 @@
-<!--
-  Requirement: Create the Student View for Assignments
-
-  Instructions:
-  This page is a read-only view for students to see all course assignments.
-  Each assignment should link to its dedicated detail page.
--->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- TODO: Add meta tags for charset and viewport. -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- TODO: Add a title, e.g., "Course Assignments". -->
     <title>Course Assignments</title>
 
-    <!-- TODO: Link to your CSS framework or stylesheet. -->
+    <!-- Added Bootstrap CSS and custom styles -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../common/styles.css">
+    
+    <style>
+        :root { --custom-purple: #6f42c1; } 
+        .main-header { background-color: var(--custom-purple); color: white; padding: 2rem 0; margin-bottom: 2rem; text-align: center; }
+        .btn-outline-custom { color: var(--custom-purple); border-color: var(--custom-purple); }
+        .btn-outline-custom:hover { background-color: var(--custom-purple); color: white; }
+    </style>
 </head>
-<body>
+<body class="bg-light">
 
-    <!-- TODO: Create a 'header' with a main heading ('h1'). Use a title like "Course Assignments". -->
-    <header>
-        <h1>Course Assignments</h1>
+    <!-- Updated header with Bootstrap classes -->
+    <header class="main-header shadow-sm">
+        <h1 class="fw-bold">Course Assignments</h1>
     </header>
 
-    <!-- TODO: Create the 'main' content area. -->
-    <main>
-        <!-- TODO: Create a 'section' to contain the list of assignments. -->
-        <section id="assignment-list-section">
-            <!-- TODO: Add 2-3 dummy assignment entries using the structure below. -->
-            <!-- Assignment 1: -->
-            <!-- TODO: Use an 'article' element for each assignment. -->
-            <!-- TODO: Add a heading ('h2') for the assignment's title (e.g., "Assignment 1: HTML Basics"). -->
-            <!-- TODO: Add a paragraph ('p') to display the due date, e.g., "Due: YYYY-MM-DD". -->
-            <!-- TODO: Add another paragraph ('p') with a brief description of the assignment. -->
-            <!-- TODO: Add an anchor ('a') that links to the detail page using the assignment's ID. Use href="details.html?id=asg_1". -->
-            <article>
-                <h2>Assignment 1: HTML Basics</h2>
-                <p>Due: 2025-12-15</p>
-                <p>Create a well-formed HTML5 document demonstrating semantic HTML elements with proper structure, headers, sections, and articles.</p>
-                <a href="details.html?id=asg_1">View Details & Discussion</a>
-            </article>
-
-            <!-- Assignment 2: -->
-            <article>
-                <h2>Assignment 2: CSS Styling</h2>
-                <p>Due: 2025-12-22</p>
-                <p>Style the HTML document using CSS with a focus on responsive design, flexbox, and grid layouts.</p>
-                <a href="details.html?id=asg_2">View Details & Discussion</a>
-            </article>
-
-            <!-- Assignment 3: -->
-            <article>
-                <h2>Assignment 3: JavaScript Interactivity</h2>
-                <p>Due: 2025-12-29</p>
-                <p>Add interactive features using JavaScript including event handling, DOM manipulation, and form validation.</p>
-                <a href="details.html?id=asg_3">View Details & Discussion</a>
-            </article>
-
+    <!-- Updated main content area -->
+    <main class="container pb-5">
+        
+        <!-- Updated section with Bootstrap grid -->
+<section id="assignment-list-section" class="row g-4">
+            <!-- Assignments will be loaded here by JavaScript -->
+            <p class="text-center text-muted">Loading assignments...</p>
         </section>
     </main>
-    <!-- End of main. -->
-
-    <!-- TODO: Link to this file using: <script src="list.js" defer></script> -->
     <script src="list.js" defer></script>
 </body>
 </html>

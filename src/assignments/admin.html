@@ -18,58 +18,75 @@
     <title>Manage Assignments</title>
 
     <!-- TODO: Link to your CSS framework or stylesheet. -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../common/styles.css">
+
+    <style>
+        :root { --custom-purple: #6f42c1; } 
+        .main-header { background-color: var(--custom-purple); color: white; padding: 2rem 0; margin-bottom: 2rem; text-align: center; }
+        .btn-purple { background-color: var(--custom-purple); color: white; border: none; width: 100%; padding: 10px; font-weight: bold; }
+        .btn-purple:hover { background-color: #5a32a3; color: white; }
+        .table-purple thead th { background-color: var(--custom-purple); color: white; border: none; padding: 15px; }
+    </style>
 </head>
-<body>
+<body class="bg-light">
 
     <!-- TODO: Create a 'header' with a main heading ('h1') "Manage Assignments". -->
-    <header>
-        <h1>Manage Assignments</h1>
+    <header class="main-header shadow-sm">
+        <h1 class="fw-bold">Manage Assignments</h1>
     </header>
 
     <!-- TODO: Create the 'main' content area. -->
-    <main>
+    <main class="container pb-5">
 
         <!-- Section 1: Add/Edit Assignment Form -->
         <!-- TODO: Create a 'section' for the form. -->
-        <section id="form-section">
+        <section id="form-section" class="card shadow-sm border-0 p-4 mb-5">
             <!-- TODO: Add a sub-heading ('h2') "Add a New Assignment". -->
-            <h2>Add a New Assignment</h2>
+            <h2 class="text-primary mb-4" style="color: var(--custom-purple) !important;">Add a New Assignment</h2>
 
             <!-- TODO: Create a 'form' with an id "assignment-form". Action can be '#'. -->
             <form id="assignment-form" action="#">
                 <!-- TODO: Use a 'fieldset' to group the form controls. -->
-                <fieldset>
+                <fieldset class="border-0">
                     <!-- TODO: Add a 'legend', e.g., "Assignment Details". -->
-                    <legend>Assignment Details</legend>
+                    <legend class="float-none w-auto px-3 text-muted">Assignment Details</legend>
 
                     <!-- TODO: Add a 'label' and 'input' for the assignment title.
                          - label 'for': "assignment-title"
                          - input 'id': "assignment-title", type="text", required -->
-                    <label for="assignment-title">Assignment Title:</label>
-                    <input id="assignment-title" type="text" required>
+                    <div class="mb-3">
+                        <label for="assignment-title" class="form-label fw-bold">Assignment Title:</label>
+                        <input id="assignment-title" type="text" class="form-control" required>
+                    </div>
 
                     <!-- TODO: Add a 'label' and 'textarea' for the description.
                          - label 'for': "assignment-description"
                          - textarea 'id': "assignment-description", rows="5", required -->
-                    <label for="assignment-description">Description:</label>
-                    <textarea id="assignment-description" rows="5" required></textarea>
+                    <div class="mb-3">
+                        <label for="assignment-description" class="form-label fw-bold">Description:</label>
+                        <textarea id="assignment-description" class="form-control" rows="5" required></textarea>
+                    </div>
 
                     <!-- TODO: Add a 'label' and 'input' for the due date.
                          - label 'for': "assignment-due-date"
                          - input 'id': "assignment-due-date", type="date", required -->
-                    <label for="assignment-due-date">Due Date:</label>
-                    <input id="assignment-due-date" type="date" required>
+                    <div class="mb-3">
+                        <label for="assignment-due-date" class="form-label fw-bold">Due Date:</label>
+                        <input id="assignment-due-date" type="date" class="form-control" required>
+                    </div>
                     
                     <!-- TODO: Add a 'label' and 'textarea' for attached files or links (one per line).
                          - label 'for': "assignment-files"
                          - textarea 'id': "assignment-files", rows="3" -->
-                    <label for="assignment-files">Attached Files or Links (one per line):</label>
-                    <textarea id="assignment-files" rows="3"></textarea>
+                    <div class="mb-3">
+                        <label for="assignment-files" class="form-label fw-bold">Attached Files or Links (one per line):</label>
+                        <textarea id="assignment-files" class="form-control" rows="3"></textarea>
+                    </div>
 
                     <!-- TODO: Add a 'button' to submit the form.
                          - id="add-assignment", type="submit", Text: "Add Assignment" -->
-                    <button id="add-assignment" type="submit">Add Assignment</button>
+                    <button id="add-assignment" type="submit" class="btn btn-purple">Add Assignment</button>
                 <!-- End of fieldset. -->
                 </fieldset>
             <!-- End of form. -->
@@ -80,19 +97,21 @@
 
         <!-- Section 2: Existing Assignments List -->
         <!-- TODO: Create a 'section' to display the list of current assignments. -->
-        <section id="list-section">
-            <!-- TODO: Add a sub-heading ('h2') "Current Assignments". -->
-            <h2>Current Assignments</h2>
+        <section id="list-section" class="card shadow-sm border-0 p-0">
+            <div class="card-header bg-white p-3">
+                <!-- TODO: Add a sub-heading ('h2') "Current Assignments". -->
+                <h2 class="h5 m-0" style="color: var(--custom-purple);">Current Assignments</h2>
+            </div>
 
             <!-- TODO: Create a 'table' with id "assignments-table". -->
-            <table id="assignments-table">
+            <table id="assignments-table" class="table table-hover table-purple mb-0">
                 <!-- TODO: Create a 'thead' and a 'tr' inside it. -->
                 <thead>
                     <tr>
                         <!-- TODO: Add 'th' elements for "Title", "Due Date", and "Actions". -->
                         <th>Title</th>
                         <th>Due Date</th>
-                        <th>Actions</th>
+                        <th class="text-end pe-4">Actions</th>
                     </tr>
                 </thead>
                 
@@ -103,20 +122,20 @@
                     <!-- TODO: Create a 'tr' for the first assignment. -->
                     <tr>
                         <!-- TODO: Add 'td' cells for a title (e.g., "HTML Basics") and a due date. -->
-                        <td>HTML Basics</td>
-                        <td>2025-12-15</td>
+                        <td class="align-middle">HTML Basics</td>
+                        <td class="align-middle">2025-12-15</td>
                         
                         <!-- TODO: Add a 'td' containing the action buttons. -->
-                        <td>
+                        <td class="text-end">
                             <!-- TODO: Add an "Edit" button. -->
-                            <button>Edit</button>
+                            <button class="btn btn-success btn-sm px-3 me-2">Edit</button>
                             <!-- TODO: Add a "Delete" button. -->
-                            <button>Delete</button>
-                        </td>
+                            <button class="btn btn-danger btn-sm px-3">Delete</button>
+                        
                     <!-- End of actions 'td'. -->
-                    </tr>
+                    </td>
                 <!-- End of the row. -->
-
+                    </tr>
                 <!-- End of tbody. -->
                 </tbody>
             <!-- End of table. -->

@@ -1,24 +1,9 @@
 /*
-  Requirement: Populate the assignment detail page and discussion forum.
-
-  Instructions:
-  1. Link this file to `details.html` using:
-     <script src="details.js" defer></script>
-
-  2. In `details.html`, add the following IDs:
-     - To the <h1>: `id="assignment-title"`
-     - To the "Due" <p>: `id="assignment-due-date"`
-     - To the "Description" <p>: `id="assignment-description"`
-     - To the "Attached Files" <ul>: `id="assignment-files-list"`
-     - To the <div> for comments: `id="comment-list"`
-     - To the "Add a Comment" <form>: `id="comment-form"`
-     - To the <textarea>: `id="new-comment-text"`
-
-  3. Implement the TODOs below.
+  Requirement: Populate the assignment detail page and discussion forum from API.
+  FIX: Handles "fake" file links by showing an alert instead of a 404 error.
 */
 
 // --- Global Data Store ---
-// These will hold the data related to *this* assignment.
 let currentAssignmentId = null;
 let currentComments = [];
 
@@ -33,98 +18,92 @@ const newCommentText = document.querySelector('#new-comment-text');
 
 // --- Functions ---
 
-/**
- * TODO: Implement the getAssignmentIdFromURL function.
- * It should:
- * 1. Get the query string from `window.location.search`.
- * 2. Use the `URLSearchParams` object to get the value of the 'id' parameter.
- * 3. Return the id.
- */
 function getAssignmentIdFromURL() {
   const params = new URLSearchParams(window.location.search);
   return params.get('id');
 }
 
-/**
- * TODO: Implement the renderAssignmentDetails function.
- * It takes one assignment object.
- * It should:
- * 1. Set the `textContent` of `assignmentTitle` to the assignment's title.
- * 2. Set the `textContent` of `assignmentDueDate` to "Due: " + assignment's dueDate.
- * 3. Set the `textContent` of `assignmentDescription`.
- * 4. Clear `assignmentFilesList` and then create and append
- * `<li><a href="#">...</a></li>` for each file in the assignment's 'files' array.
- */
 function renderAssignmentDetails(assignment) {
   assignmentTitle.textContent = assignment.title;
-  assignmentDueDate.textContent = 'Due: ' + assignment.dueDate;
+  assignmentDueDate.textContent = 'Due: ' + assignment.due_date;
   assignmentDescription.textContent = assignment.description;
   
   assignmentFilesList.innerHTML = '';
   
-  if (assignment.files) {
-    const filesArray = assignment.files.split('\n').filter(file => file.trim());
-    for (const file of filesArray) {
-      const li = document.createElement('li');
-      const a = document.createElement('a');
-      a.href = '#';
-      a.textContent = file.trim();
-      li.appendChild(a);
-      assignmentFilesList.appendChild(li);
-    }
+  // FIXED: Handle Files Safely
+  const filesArray = Array.isArray(assignment.files) ? assignment.files : [];
+  
+  if (filesArray.length === 0) {
+      assignmentFilesList.innerHTML = '<li class="list-group-item text-muted">No attached files.</li>';
+  } else {
+      for (const file of filesArray) {
+        const li = document.createElement('li');
+        li.className = 'list-group-item d-flex justify-content-between align-items-center';
+        
+        const a = document.createElement('a');
+        a.textContent = file;
+        a.className = 'text-decoration-none fw-bold text-primary';
+        
+        // LOGIC: Check if it is a real link or a fake file
+        if (file.startsWith('http')) {
+            // Real Link -> Open in new tab
+            a.href = file;
+            a.target = '_blank';
+        } else {
+            // Fake File -> Prevent error and show alert
+            a.href = '#';
+            a.onclick = (e) => {
+                e.preventDefault();
+                alert(`(Demo) Downloading file:\n${file}\n\nThis is a simulation because no file server is connected.`);
+            };
+        }
+        
+        // Add a nice "Download" badge
+        const badge = document.createElement('span');
+        badge.className = 'badge bg-light text-dark border';
+        badge.textContent = file.startsWith('http') ? 'Open Link' : 'Download';
+
+        li.appendChild(a);
+        li.appendChild(badge);
+        assignmentFilesList.appendChild(li);
+      }
   }
 }
 
-/**
- * TODO: Implement the createCommentArticle function.
- * It takes one comment object {author, text}.
- * It should return an <article> element matching the structure in `details.html`.
- */
 function createCommentArticle(comment) {
   const article = document.createElement('article');
+  article.className = 'bg-light p-3 rounded mb-3';
   
   const p = document.createElement('p');
+  p.className = 'mb-1';
   p.textContent = comment.text;
   article.appendChild(p);
   
   const footer = document.createElement('footer');
-  footer.textContent = 'Posted by: ' + comment.author;
+  footer.className = 'text-muted small';
+  
+  const dateStr = comment.created_at ? ` on ${comment.created_at}` : '';
+  footer.innerHTML = `Posted by: <strong>${comment.author}</strong>${dateStr}`;
   article.appendChild(footer);
   
   return article;
 }
 
-/**
- * TODO: Implement the renderComments function.
- * It should:
- * 1. Clear the `commentList`.
- * 2. Loop through the global `currentComments` array.
- * 3. For each comment, call `createCommentArticle()`, and
- * append the resulting <article> to `commentList`.
- */
 function renderComments() {
   commentList.innerHTML = '';
   
+  if (currentComments.length === 0) {
+      commentList.innerHTML = '<p class="text-muted">No comments yet. Be the first!</p>';
+      return;
+  }
+
   for (const comment of currentComments) {
     const article = createCommentArticle(comment);
     commentList.appendChild(article);
   }
 }
 
-/**
- * TODO: Implement the handleAddComment function.
- * This is the event handler for the `commentForm` 'submit' event.
- * It should:
- * 1. Prevent the form's default submission.
- * 2. Get the text from `newCommentText.value`.
- * 3. If the text is empty, return.
- * 4. Create a new comment object: { author: 'Student', text: commentText }
- * (For this exercise, 'Student' is a fine hardcoded author).
- * 5. Add the new comment to the global `currentComments` array (in-memory only).
- * 6. Call `renderComments()` to refresh the list.
- * 7. Clear the `newCommentText` textarea.
- */
-function handleAddComment(event) {
+async function handleAddComment(event) {
   event.preventDefault();
   
   const commentText = newCommentText.value;
@@ -133,63 +112,73 @@ function handleAddComment(event) {
     return;
   }
   
-  const newComment = {
-    author: 'Student',
-    text: commentText
-  };
-  
-  currentComments.push(newComment);
-  
-  renderComments();
-  
-  newCommentText.value = '';
+  try {
+      const response = await fetch('./api/index.php?resource=comments', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+              assignment_id: currentAssignmentId,
+              author: 'Student', 
+              text: commentText
+          })
+      });
+
+      const json = await response.json();
+
+      if (json.success) {
+          newCommentText.value = '';
+          loadComments(); 
+      } else {
+          alert('Error posting comment: ' + json.message);
+      }
+  } catch (error) {
+      console.error('Error posting comment:', error);
+  }
 }
 
-/**
- * TODO: Implement an `initializePage` function.
- * This function needs to be 'async'.
- * It should:
- * 1. Get the `currentAssignmentId` by calling `getAssignmentIdFromURL()`.
- * 2. If no ID is found, display an error and stop.
- * 3. `fetch` both 'assignments.json' and 'comments.json' (you can use `Promise.all`).
- * 4. Find the correct assignment from the assignments array using the `currentAssignmentId`.
- * 5. Get the correct comments array from the comments object using the `currentAssignmentId`.
- * Store this in the global `currentComments` variable.
- * 6. If the assignment is found:
- * - Call `renderAssignmentDetails()` with the assignment object.
- * - Call `renderComments()` to show the initial comments.
- * - Add the 'submit' event listener to `commentForm` (calls `handleAddComment`).
- * 7. If the assignment is not found, display an error.
- */
+async function loadComments() {
+    try {
+        const response = await fetch(`./api/index.php?resource=comments&assignment_id=${currentAssignmentId}`);
+        const json = await response.json();
+        
+        if (json.success) {
+            currentComments = json.data;
+            renderComments();
+        }
+    } catch (error) {
+        console.error('Error loading comments:', error);
+    }
+}
+
 async function initializePage() {
   try {
     currentAssignmentId = getAssignmentIdFromURL();
     
     if (!currentAssignmentId) {
       assignmentTitle.textContent = 'Error: No assignment ID provided';
+      assignmentDescription.textContent = 'Please go back to the list and select an assignment.';
       return;
     }
     
-    const [assignmentResponse, commentsResponse] = await Promise.all([
-      fetch('./api/assignments.json'),
-      fetch('./api/comments.json')
-    ]);
+    // 1. Fetch Assignment Details
+    const assignmentResponse = await fetch(`./api/index.php?resource=assignments&id=${currentAssignmentId}`);
+    const assignmentJson = await assignmentResponse.json();
     
-    const assignments = await assignmentResponse.json();
-    const commentsData = await commentsResponse.json();
-    
-    const assignment = assignments.find(asg => asg.id === currentAssignmentId);
-    
-    if (assignment) {
-      currentComments = commentsData[currentAssignmentId] || [];
-      
-      renderAssignmentDetails(assignment);
-      renderComments();
-      
-      commentForm.addEventListener('submit', handleAddComment);
+    if (assignmentJson.success) {
+        renderAssignmentDetails(assignmentJson.data);
+        
+        // 2. Fetch Comments
+        await loadComments();
+        
+        // 3. Enable Form
+        if (commentForm) {
+            commentForm.addEventListener('submit', handleAddComment);
+        }
     } else {
-      assignmentTitle.textContent = 'Error: Assignment not found';
+        assignmentTitle.textContent = 'Error: Assignment not found';
+        assignmentDescription.textContent = 'The assignment ID does not exist in the database.';
     }
+
   } catch (error) {
     console.error('Error loading page:', error);
     assignmentTitle.textContent = 'Error loading assignment details';
