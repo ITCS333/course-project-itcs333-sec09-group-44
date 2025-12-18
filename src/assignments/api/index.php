@@ -14,14 +14,22 @@ require_once '../../common/db.php';
 try {
     $db = getDBConnection();
     $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    
-    // Auto-fix database if needed
+
+    // Auto-fix database if data is corrupted or empty
     $check = $db->query("SELECT count(*) FROM assignments WHERE title LIKE 'HTML & CSS Portfolio%'");
     if ($check->fetchColumn() > 0) fixDatabaseData($db);
 
+    $checkEmpty = $db->query("SELECT count(*) FROM assignments");
+    if ($checkEmpty->fetchColumn() == 0) fixDatabaseData($db);
+
+} catch (PDOException $e) {
+    // FIX FOR TASK 4318: Explicitly catching PDOException
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => 'DB Connection Error: ' . $e->getMessage()]);
+    exit;
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'DB Connection Error']);
+    echo json_encode(['success' => false, 'message' => 'General Error']);
     exit;
 }
 
@@ -58,20 +66,21 @@ if ($resource === 'assignments') {
         $title = trim($data['title'] ?? '');
         $desc = trim($data['description'] ?? '');
         $due = trim($data['due_date'] ?? '');
-        // Capture files/links from JS
         $files = isset($data['files']) ? json_encode($data['files']) : json_encode([]);
-        
+
         if (!$title || !$due) {
             echo json_encode(['success' => false, 'message' => 'Title and Due Date are required']);
             exit;
         }
 
         try {
-            $newId = 'asg_' . time(); 
+            $newId = time(); 
             $sql = "INSERT INTO assignments (id, title, description, due_date, files) VALUES (:id, :title, :desc, :due, :files)";
             $stmt = $db->prepare($sql);
             $stmt->execute([':id' => $newId, ':title' => $title, ':desc' => $desc, ':due' => $due, ':files' => $files]);
             echo json_encode(['success' => true, 'message' => 'Assignment created', 'id' => $newId]);
+        } catch (PDOException $e) {
+            echo json_encode(['success' => false, 'message' => 'DB Error: ' . $e->getMessage()]);
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
         }
@@ -83,7 +92,7 @@ if ($resource === 'assignments') {
         $desc = trim($data['description'] ?? '');
         $due = trim($data['due_date'] ?? '');
         $files = isset($data['files']) ? json_encode($data['files']) : json_encode([]);
-        
+
         if (!$id) {
              echo json_encode(['success' => false, 'message' => 'Missing Assignment ID']);
              exit;
@@ -94,6 +103,8 @@ if ($resource === 'assignments') {
             $stmt = $db->prepare($sql);
             $stmt->execute([':id' => $id, ':title' => $title, ':desc' => $desc, ':due' => $due, ':files' => $files]);
             echo json_encode(['success' => true, 'message' => 'Assignment updated']);
+        } catch (PDOException $e) {
+            echo json_encode(['success' => false, 'message' => 'DB Error: ' . $e->getMessage()]);
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
         }
@@ -108,27 +119,31 @@ if ($resource === 'assignments') {
     }
 
 } elseif ($resource === 'comments') {
-    // Comment Logic (GET/POST)
     if ($method === 'GET') {
         $stmt = $db->prepare("SELECT * FROM comments_assignment WHERE assignment_id = :id ORDER BY created_at ASC");
         $stmt->execute([':id' => $_GET['assignment_id']]);
         echo json_encode(['success' => true, 'data' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
     } elseif ($method === 'POST') {
-        $stmt = $db->prepare("INSERT INTO comments_assignment (assignment_id, author, text) VALUES (:aid, :auth, :txt)");
-        $stmt->execute([':aid' => $data['assignment_id'], ':auth' => $data['author'], ':txt' => $data['text']]);
-        echo json_encode(['success' => true]);
+        try {
+            $stmt = $db->prepare("INSERT INTO comments_assignment (assignment_id, author, text) VALUES (:aid, :auth, :txt)");
+            $stmt->execute([':aid' => $data['assignment_id'], ':auth' => $data['author'], ':txt' => $data['text']]);
+            echo json_encode(['success' => true]);
+        } catch (PDOException $e) {
+            echo json_encode(['success' => false, 'message' => 'DB Error: ' . $e->getMessage()]);
+        }
     }
 }
 
-// Helper Fixer
 function fixDatabaseData($db) {
     try {
         $db->exec("SET FOREIGN_KEY_CHECKS=0; DELETE FROM comments_assignment; DELETE FROM assignments; SET FOREIGN_KEY_CHECKS=1;");
         $stmt = $db->prepare("INSERT INTO assignments (id, title, description, due_date, files) VALUES (:id, :title, :desc, :due, :files)");
-        $stmt->execute([':id'=>'asg_1', ':title'=>'Assignment 1: HTML Basics', ':desc'=>'Create a semantic HTML...', ':due'=>'2025-11-10', ':files'=>json_encode(["portfolio.pdf"])]);
-        $stmt->execute([':id'=>'asg_2', ':title'=>'Assignment 2: CSS Styling', ':desc'=>'Style your HTML...', ':due'=>'2025-11-17', ':files'=>json_encode(["style.pdf"])]);
-        $stmt->execute([':id'=>'asg_3', ':title'=>'Assignment 3: JS Events', ':desc'=>'Make interactive...', ':due'=>'2025-11-24', ':files'=>json_encode(["script.js"])]);
-        $db->exec("INSERT INTO comments_assignment (assignment_id, author, text) VALUES ('asg_1', 'Fatema', 'Question 1'), ('asg_2', 'Noora', 'Question 2')");
+
+        $stmt->execute([':id'=>1, ':title'=>'Assignment 1: HTML Basics', ':desc'=>'Create a semantic HTML...', ':due'=>'2025-11-10', ':files'=>json_encode(["portfolio-requirements.pdf", "examples.zip"])]);
+        $stmt->execute([':id'=>2, ':title'=>'Assignment 2: CSS Styling', ':desc'=>'Style your HTML...', ':due'=>'2025-11-17', ':files'=>json_encode(["style-guide.pdf"])]);
+        $stmt->execute([':id'=>3, ':title'=>'Assignment 3: JS Events', ':desc'=>'Make interactive...', ':due'=>'2025-11-24', ':files'=>json_encode(["js-requirements.pdf"])]);
+
+        $db->exec("INSERT INTO comments_assignment (assignment_id, author, text) VALUES (1, 'Fatema', 'Question 1'), (2, 'Noora', 'Question 2')");
     } catch (Exception $e) {}
 }
 ?>
