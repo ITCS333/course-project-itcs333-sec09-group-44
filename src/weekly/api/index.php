@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-require_once 'config.php';
+require_once __DIR__ . '/../../common/db.php';
 try {
 // Read and parse request body
     $requestBody = file_get_contents('php://input');
